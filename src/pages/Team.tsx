@@ -1,7 +1,7 @@
-
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import SEO from '@/components/SEO';
 import { 
   Users, 
   Award, 
@@ -218,89 +218,98 @@ const Team = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white py-24">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center px-6 py-3 bg-white/10 rounded-full mb-8">
-            <Users className="w-6 h-6 mr-3" />
-            <span className="text-lg font-medium">Meet Our Leadership Team</span>
+    <>
+      <SEO 
+        title="Leadership Team & Advisory Board"
+        description="Meet UNCIF's distinguished leadership team, advisory board, mentors, and regional heads driving innovation and excellence across educational institutions nationwide through CSR grants and technology initiatives."
+        keywords="UNCIF team, Uniford leadership, educational advisors, regional heads, mentors, institutes, CSR grants, frontliners, academic excellence, innovation leaders, Pitchburg, Un-pitch, Uniwave"
+        canonical="/team"
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-blue-50">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white py-24">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="inline-flex items-center px-6 py-3 bg-white/10 rounded-full mb-8">
+              <Users className="w-6 h-6 mr-3" />
+              <span className="text-lg font-medium">Meet Our Leadership Team</span>
+            </div>
+            
+            <h1 className="text-5xl lg:text-7xl font-bold mb-8 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+              UNCIF Council & Leadership
+            </h1>
+            
+            <p className="text-xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed">
+              Our distinguished team of advisors, mentors, and regional heads work together to drive 
+              innovation and excellence across educational institutions nationwide.
+            </p>
+            
+            <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-300">50+</div>
+                <div className="text-blue-200">Expert Members</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-300">15+</div>
+                <div className="text-blue-200">Regions Covered</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-300">100+</div>
+                <div className="text-blue-200">Institutes Guided</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-300">25+</div>
+                <div className="text-blue-200">Years Experience</div>
+              </div>
+            </div>
           </div>
-          
-          <h1 className="text-5xl lg:text-7xl font-bold mb-8 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-            UNCIF Council & Leadership
-          </h1>
-          
-          <p className="text-xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed">
-            Our distinguished team of advisors, mentors, and regional heads work together to drive 
-            innovation and excellence across educational institutions nationwide.
-          </p>
-          
-          <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-300">50+</div>
-              <div className="text-blue-200">Expert Members</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-300">15+</div>
-              <div className="text-blue-200">Regions Covered</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-300">100+</div>
-              <div className="text-blue-200">Institutes Guided</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-300">25+</div>
-              <div className="text-blue-200">Years Experience</div>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Team Sections */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <TeamSection
-          title="Advisory Board"
-          members={advisoryBoard}
-          icon={Crown}
-          description="Strategic leaders providing vision and direction for UNCIF's mission to transform educational excellence."
-          gradient="bg-gradient-to-r from-purple-600 to-purple-800"
-        />
-        
-        <TeamSection
-          title="Appointed Mentors"
-          members={appointedMentors}
-          icon={Brain}
-          description="Experienced professionals dedicated to guiding institutions towards innovation and academic excellence."
-          gradient="bg-gradient-to-r from-blue-600 to-blue-800"
-        />
-        
-        <TeamSection
-          title="Regional Heads"
-          members={regionalHeads}
-          icon={Globe}
-          description="Regional coordinators ensuring effective implementation of UNCIF programs across different geographical areas."
-          gradient="bg-gradient-to-r from-indigo-600 to-indigo-800"
-        />
-        
-        <TeamSection
-          title="Panellists & Experts"
-          members={panellists}
-          icon={Shield}
-          description="Subject matter experts bringing specialized knowledge and industry insights to our initiatives."
-          gradient="bg-gradient-to-r from-teal-600 to-teal-800"
-        />
-        
-        <TeamSection
-          title="Honorary Members"
-          members={honoraryMembers}
-          icon={Award}
-          description="Distinguished personalities who have made significant contributions to education and innovation."
-          gradient="bg-gradient-to-r from-amber-600 to-amber-800"
-        />
+        {/* Team Sections */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <TeamSection
+            title="Advisory Board"
+            members={advisoryBoard}
+            icon={Crown}
+            description="Strategic leaders providing vision and direction for UNCIF's mission to transform educational excellence."
+            gradient="bg-gradient-to-r from-purple-600 to-purple-800"
+          />
+          
+          <TeamSection
+            title="Appointed Mentors"
+            members={appointedMentors}
+            icon={Brain}
+            description="Experienced professionals dedicated to guiding institutions towards innovation and academic excellence."
+            gradient="bg-gradient-to-r from-blue-600 to-blue-800"
+          />
+          
+          <TeamSection
+            title="Regional Heads"
+            members={regionalHeads}
+            icon={Globe}
+            description="Regional coordinators ensuring effective implementation of UNCIF programs across different geographical areas."
+            gradient="bg-gradient-to-r from-indigo-600 to-indigo-800"
+          />
+          
+          <TeamSection
+            title="Panellists & Experts"
+            members={panellists}
+            icon={Shield}
+            description="Subject matter experts bringing specialized knowledge and industry insights to our initiatives."
+            gradient="bg-gradient-to-r from-teal-600 to-teal-800"
+          />
+          
+          <TeamSection
+            title="Honorary Members"
+            members={honoraryMembers}
+            icon={Award}
+            description="Distinguished personalities who have made significant contributions to education and innovation."
+            gradient="bg-gradient-to-r from-amber-600 to-amber-800"
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
