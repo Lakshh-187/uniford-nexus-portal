@@ -14,6 +14,7 @@ const Navbar = () => {
     { name: 'MOU & Collaboration', path: '/mou' },
     { name: 'Authentication', path: '/auth' },
     { name: 'Grants Portal', path: '/grants' },
+    { name: 'Templates', path: '/templates' },
     { name: 'Our Team', path: '/team' },
   ];
 

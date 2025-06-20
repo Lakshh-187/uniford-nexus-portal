@@ -5,10 +5,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import MOUCollaboration from "./pages/MOUCollaboration";
 import Authentication from "./pages/Authentication";
 import Grants from "./pages/Grants";
+import TemplateGenerator from "./pages/TemplateGenerator";
+import Team from "./pages/Team";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,9 +29,12 @@ const App = () => (
             <Route path="/mou" element={<MOUCollaboration />} />
             <Route path="/auth" element={<Authentication />} />
             <Route path="/grants" element={<Grants />} />
+            <Route path="/templates" element={<TemplateGenerator />} />
+            <Route path="/team" element={<Team />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <Footer />
         </div>
       </BrowserRouter>
     </TooltipProvider>
