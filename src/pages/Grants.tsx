@@ -10,13 +10,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  Robot, 
+  Bot, 
   Folder, 
   Brain, 
   School, 
   Backpack, 
   GraduationCap, 
-  People, 
+  Users, 
   Trophy, 
   Palette, 
   Lightbulb, 
@@ -47,7 +47,7 @@ const Grants = () => {
   const grantCategories = [
     {
       title: "AI / STEM / Robotics Labs",
-      icon: Robot,
+      icon: Bot,
       description: "Get funding for future-ready lab setups",
       category: "STEM"
     },
@@ -83,7 +83,7 @@ const Grants = () => {
     },
     {
       title: "Faculty Connect",
-      icon: People,
+      icon: Users,
       description: "Train & link your faculty with experts",
       category: "Academic"
     },
