@@ -8,6 +8,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import MOUCollaboration from "./pages/MOUCollaboration";
 import Authentication from "./pages/Authentication";
+import Grants from "./pages/Grants";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/mou" element={<MOUCollaboration />} />
             <Route path="/auth" element={<Authentication />} />
+            <Route path="/grants" element={<Grants />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
