@@ -13,15 +13,22 @@ import {
   Youtube,
   PenTool,
   Crown,
-  Monitor
+  Monitor,
+  Home,
+  Info,
+  HandHeart,
+  Shield,
+  DollarSign
 } from 'lucide-react';
 
 const Footer = () => {
-  const quickLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'MOU & Collaboration', path: '/mou-collaboration' },
-    { name: 'Authentication', path: '/authentication' },
-    { name: 'Grants Portal', path: '/grants' },
+  const mainPages = [
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'About', path: '/about', icon: Info },
+    { name: 'MOU & Collaboration', path: '/mou-collaboration', icon: HandHeart },
+    { name: 'Authentication', path: '/authentication', icon: Shield },
+    { name: 'Grants Portal', path: '/grants', icon: DollarSign },
+    { name: 'Our Team', path: '/team', icon: Users },
   ];
 
   const newPages = [
@@ -29,7 +36,6 @@ const Footer = () => {
     { name: 'Advanced Document Generator', path: '/advanced-document-generator', icon: Crown },
     { name: 'Template Generator', path: '/template-generator', icon: FileText },
     { name: 'Letter Generator', path: '/letter-generator', icon: PenTool },
-    { name: 'Our Team', path: '/team', icon: Users },
   ];
 
   const socialLinks = [
@@ -38,6 +44,10 @@ const Footer = () => {
     { name: 'Instagram', icon: Instagram, url: '#' },
     { name: 'YouTube', icon: Youtube, url: '#' },
   ];
+
+  const handleUnifordClick = () => {
+    window.open('https://www.uniford.org', '_blank');
+  };
 
   return (
     <footer className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
@@ -58,6 +68,18 @@ const Footer = () => {
               Transforming educational institutions through innovation, collaboration, and excellence.
               Building the future of learning together.
             </p>
+            <div className="space-y-2">
+              <p className="text-sm text-purple-300">
+                UNCIF is registered as{' '}
+                <button 
+                  onClick={handleUnifordClick}
+                  className="text-yellow-400 hover:text-yellow-300 underline font-medium inline-flex items-center"
+                >
+                  Uniford Foundation
+                  <ExternalLink className="w-3 h-3 ml-1" />
+                </button>
+              </p>
+            </div>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
                 <a
@@ -72,18 +94,21 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Main Pages */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-purple-300">Quick Links</h3>
-            <ul className="space-y-2">
-              {quickLinks.map((link) => (
-                <li key={link.name}>
+            <h3 className="text-lg font-semibold mb-4 text-purple-300">Main Pages</h3>
+            <ul className="space-y-3">
+              {mainPages.map((page) => (
+                <li key={page.name}>
                   <Link 
-                    to={link.path}
+                    to={page.path}
                     className="text-gray-300 hover:text-white transition-colors text-sm flex items-center group"
                   >
+                    <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-purple-700 rounded-md flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                      <page.icon className="w-3 h-3" />
+                    </div>
                     <span className="group-hover:translate-x-1 transition-transform">
-                      {link.name}
+                      {page.name}
                     </span>
                   </Link>
                 </li>
@@ -91,9 +116,9 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* New High-Tech Pages */}
+          {/* Advanced Features */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-purple-300">Latest Features</h3>
+            <h3 className="text-lg font-semibold mb-4 text-purple-300">Advanced Features</h3>
             <ul className="space-y-3">
               {newPages.map((page) => (
                 <li key={page.name}>
@@ -101,12 +126,12 @@ const Footer = () => {
                     to={page.path}
                     className="text-gray-300 hover:text-white transition-colors text-sm flex items-center group"
                   >
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
-                      <page.icon className="w-4 h-4" />
+                    <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-purple-700 rounded-md flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                      <page.icon className="w-3 h-3" />
                     </div>
                     <div>
-                      <div className="font-medium">{page.name}</div>
-                      <div className="text-xs text-purple-300">New Feature</div>
+                      <div className="font-medium group-hover:translate-x-1 transition-transform">{page.name}</div>
+                      <div className="text-xs text-purple-300">Latest Tool</div>
                     </div>
                   </Link>
                 </li>
@@ -149,7 +174,7 @@ const Footer = () => {
         <div className="border-t border-white/10 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-gray-400">
-              © 2024 UNCIF - Uniford National Council for Innovation Framework. All rights reserved.
+              © 2024 Uniford Foundation. All rights reserved.
             </div>
             <div className="flex items-center space-x-6 text-sm">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -158,10 +183,13 @@ const Footer = () => {
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 Terms of Service
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors flex items-center">
-                Powered by Uniford
+              <button 
+                onClick={handleUnifordClick}
+                className="text-gray-400 hover:text-white transition-colors flex items-center"
+              >
+                Powered by Uniford Foundation
                 <ExternalLink className="w-3 h-3 ml-1" />
-              </a>
+              </button>
             </div>
           </div>
         </div>

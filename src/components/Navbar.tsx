@@ -2,26 +2,16 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Menu, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ResourcesModal from './ResourcesModal';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [showResources, setShowResources] = useState(false);
-  const location = useLocation();
 
-  const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
-    { name: 'MOU & Collaboration', path: '/mou-collaboration' },
-    { name: 'Authentication', path: '/authentication' },
-    { name: 'Grants Portal', path: '/grants' },
-    { name: 'Tech Support', path: '/tech-support-portal' },
-    { name: 'Our Team', path: '/team' },
-  ];
-
-  const isActive = (path: string) => location.pathname === path;
+  const handleUnifordClick = () => {
+    window.open('https://www.uniford.org', '_blank');
+  };
 
   return (
     <>
@@ -38,19 +28,19 @@ const Navbar = () => {
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={`text-sm font-medium transition-colors hover:text-purple-600 ${
-                    isActive(item.path) ? 'text-purple-600' : 'text-gray-700'
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
+            {/* Centered Uniford Foundation Button */}
+            <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2">
+              <Button
+                onClick={handleUnifordClick}
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-2 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Uniford Foundation
+                <ExternalLink className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+
+            {/* Resources Button */}
+            <div className="hidden md:flex">
               <Button
                 onClick={() => setShowResources(true)}
                 variant="ghost"
@@ -58,13 +48,10 @@ const Navbar = () => {
               >
                 Resources & Downloads
               </Button>
-              <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800">
-                Apply Now
-              </Button>
             </div>
 
             {/* Mobile Navigation */}
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <Sheet>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
@@ -72,30 +59,19 @@ const Navbar = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px]">
                 <div className="flex flex-col space-y-4 mt-8">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.path}
-                      onClick={() => setIsOpen(false)}
-                      className={`text-lg font-medium transition-colors hover:text-purple-600 ${
-                        isActive(item.path) ? 'text-purple-600' : 'text-gray-700'
-                      }`}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
                   <Button
-                    onClick={() => {
-                      setShowResources(true);
-                      setIsOpen(false);
-                    }}
+                    onClick={handleUnifordClick}
+                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 justify-center"
+                  >
+                    Uniford Foundation
+                    <ExternalLink className="w-4 h-4 ml-2" />
+                  </Button>
+                  <Button
+                    onClick={() => setShowResources(true)}
                     variant="ghost"
                     className="text-lg font-medium text-gray-700 hover:text-purple-600 justify-start"
                   >
                     Resources & Downloads
-                  </Button>
-                  <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 mt-4">
-                    Apply Now
                   </Button>
                 </div>
               </SheetContent>

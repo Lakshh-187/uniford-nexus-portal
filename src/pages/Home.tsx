@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import OrganizationMemories from '@/components/OrganizationMemories';
 import { 
   ArrowDown, 
   Book, 
@@ -137,10 +137,19 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+      {/* Hero Section with Full-Length Image */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white min-h-screen flex items-center">
+        {/* Full-length background image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/lovable-uploads/7777d86d-aa7c-43c8-baed-091e5941ea1b.png" 
+            alt="UNCIF Student Success Story" 
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/80 via-purple-700/80 to-purple-800/80"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <Badge className="mb-6 bg-white/20 text-white border-white/30 hover:bg-white/30">
             TRANSFORMATION THROUGH CSR
           </Badge>
@@ -164,7 +173,7 @@ const Home = () => {
                   className="bg-white text-purple-700 hover:bg-purple-50 text-lg px-8 py-4"
                   asChild
                 >
-                  <Link to="/mou">Apply Now</Link>
+                  <Link to="/mou-collaboration">Apply Now</Link>
                 </Button>
                 <Button 
                   size="lg" 
@@ -192,7 +201,7 @@ const Home = () => {
           </div>
         </div>
         
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce z-10">
           <ArrowDown className="w-6 h-6 text-white/70" />
         </div>
       </section>
@@ -213,6 +222,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Organization Memories Section */}
+      <OrganizationMemories />
 
       {/* About Section */}
       <section className="py-20 bg-gradient-to-r from-purple-50 to-white">
@@ -563,7 +575,7 @@ const Home = () => {
               className="bg-white text-purple-700 hover:bg-purple-50"
               asChild
             >
-              <Link to="/mou">Start Your Application</Link>
+              <Link to="/mou-collaboration">Start Your Application</Link>
             </Button>
             <Button 
               size="lg" 

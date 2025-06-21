@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import SEO from '@/components/SEO';
+import EBillModal from '@/components/EBillModal';
 import { 
   Monitor, 
   Zap, 
@@ -25,7 +26,8 @@ import {
   Rocket,
   Code,
   Calculator,
-  Eye
+  Eye,
+  Receipt
 } from 'lucide-react';
 
 interface ProjectCard {
@@ -42,6 +44,9 @@ interface ProjectCard {
 }
 
 const TechSupportPortal = () => {
+  const [selectedProject, setSelectedProject] = useState<ProjectCard | null>(null);
+  const [showEBill, setShowEBill] = useState(false);
+
   const projectCards: ProjectCard[] = [
     {
       id: 1,
@@ -178,6 +183,11 @@ const TechSupportPortal = () => {
     window.open(sampleUrl, '_blank');
   };
 
+  const handleShowEBill = (project: ProjectCard) => {
+    setSelectedProject(project);
+    setShowEBill(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-100">
       <SEO 
@@ -296,14 +306,26 @@ const TechSupportPortal = () => {
                   </div>
                   
                   <div className="space-y-2 pt-2">
-                    <Button 
-                      onClick={() => handleViewSample(project.sampleUrl)}
-                      variant="outline"
-                      className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Sample Website
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        onClick={() => handleViewSample(project.sampleUrl)}
+                        variant="outline"
+                        className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                        size="sm"
+                      >
+                        <Eye className="w-3 h-3 mr-1" />
+                        Sample
+                      </Button>
+                      <Button 
+                        onClick={() => handleShowEBill(project)}
+                        variant="outline"
+                        className="border-green-200 text-green-700 hover:bg-green-50"
+                        size="sm"
+                      >
+                        <Receipt className="w-3 h-3 mr-1" />
+                        E-Bill
+                      </Button>
+                    </div>
                     <Button 
                       onClick={() => handleWhatsAppConnect(project.whatsappNumber, project.title)}
                       className="w-full bg-green-600 hover:bg-green-700 text-white"
@@ -369,6 +391,15 @@ const TechSupportPortal = () => {
           </Card>
         </div>
       </div>
+
+      {/* E-Bill Modal */}
+      {selectedProject && (
+        <EBillModal
+          isOpen={showEBill}
+          onClose={() => setShowEBill(false)}
+          project={selectedProject}
+        />
+      )}
     </div>
   );
 };
