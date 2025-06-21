@@ -10,19 +10,21 @@ import {
   Instagram,
   Twitter,
   Linkedin,
-  Youtube
+  Youtube,
+  PenTool
 } from 'lucide-react';
 
 const Footer = () => {
   const quickLinks = [
     { name: 'Home', path: '/' },
-    { name: 'MOU & Collaboration', path: '/mou' },
-    { name: 'Authentication', path: '/auth' },
+    { name: 'MOU & Collaboration', path: '/mou-collaboration' },
+    { name: 'Authentication', path: '/authentication' },
     { name: 'Grants Portal', path: '/grants' },
   ];
 
   const newPages = [
-    { name: 'Template Generator', path: '/templates', icon: FileText },
+    { name: 'Template Generator', path: '/template-generator', icon: FileText },
+    { name: 'Letter Generator', path: '/letter-generator', icon: PenTool },
     { name: 'Our Team', path: '/team', icon: Users },
   ];
 
