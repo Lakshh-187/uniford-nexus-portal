@@ -76,7 +76,8 @@ const TechSupportPortal = () => {
       totalPrice: 1000,
       pages: "12-15 Pages",
       category: "E-commerce",
-      whatsappNumber: "+919876543210"
+      whatsappNumber: "+919876543210",
+      sampleUrl: "https://ecommerce-sample.uncif.org"
     },
     {
       id: 4,
@@ -87,7 +88,8 @@ const TechSupportPortal = () => {
       totalPrice: 1200,
       pages: "10-12 Pages",
       category: "Portfolio",
-      whatsappNumber: "+919876543210"
+      whatsappNumber: "+919876543210",
+      sampleUrl: "https://portfolio-blog-sample.uncif.org"
     },
     {
       id: 5,
@@ -98,7 +100,8 @@ const TechSupportPortal = () => {
       totalPrice: 1900,
       pages: "20+ Pages",
       category: "Education",
-      whatsappNumber: "+919876543210"
+      whatsappNumber: "+919876543210",
+      sampleUrl: "https://education-sample.uncif.org"
     },
     {
       id: 6,
@@ -109,7 +112,8 @@ const TechSupportPortal = () => {
       totalPrice: 2000,
       pages: "15-20 Pages",
       category: "Corporate",
-      whatsappNumber: "+919876543210"
+      whatsappNumber: "+919876543210",
+      sampleUrl: "https://corporate-sample.uncif.org"
     },
     {
       id: 7,
@@ -120,7 +124,8 @@ const TechSupportPortal = () => {
       totalPrice: 2200,
       pages: "Custom Pages",
       category: "Application",
-      whatsappNumber: "+919876543210"
+      whatsappNumber: "+919876543210",
+      sampleUrl: "https://webapp-sample.uncif.org"
     },
     {
       id: 8,
@@ -131,7 +136,8 @@ const TechSupportPortal = () => {
       totalPrice: 7000,
       pages: "50+ Pages",
       category: "Enterprise",
-      whatsappNumber: "+919876543210"
+      whatsappNumber: "+919876543210",
+      sampleUrl: "https://enterprise-sample.uncif.org"
     }
   ];
 
