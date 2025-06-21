@@ -15,6 +15,7 @@ import TemplateGenerator from "./pages/TemplateGenerator";
 import MOUCollaboration from "./pages/MOUCollaboration";
 import LetterGenerator from "./pages/LetterGenerator";
 import AdvancedDocumentGenerator from "./pages/AdvancedDocumentGenerator";
+import TechSupportPortal from "./pages/TechSupportPortal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/mou-collaboration" element={<MOUCollaboration />} />
                 <Route path="/letter-generator" element={<LetterGenerator />} />
                 <Route path="/advanced-document-generator" element={<AdvancedDocumentGenerator />} />
+                <Route path="/tech-support-portal" element={<TechSupportPortal />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
