@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { 
   Mail, 
@@ -11,7 +10,8 @@ import {
   Twitter,
   Linkedin,
   Youtube,
-  PenTool
+  PenTool,
+  Crown
 } from 'lucide-react';
 
 const Footer = () => {
@@ -23,6 +23,7 @@ const Footer = () => {
   ];
 
   const newPages = [
+    { name: 'Advanced Document Generator', path: '/advanced-document-generator', icon: Crown },
     { name: 'Template Generator', path: '/template-generator', icon: FileText },
     { name: 'Letter Generator', path: '/letter-generator', icon: PenTool },
     { name: 'Our Team', path: '/team', icon: Users },

@@ -14,6 +14,7 @@ import Authentication from "./pages/Authentication";
 import TemplateGenerator from "./pages/TemplateGenerator";
 import MOUCollaboration from "./pages/MOUCollaboration";
 import LetterGenerator from "./pages/LetterGenerator";
+import AdvancedDocumentGenerator from "./pages/AdvancedDocumentGenerator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/template-generator" element={<TemplateGenerator />} />
                 <Route path="/mou-collaboration" element={<MOUCollaboration />} />
                 <Route path="/letter-generator" element={<LetterGenerator />} />
+                <Route path="/advanced-document-generator" element={<AdvancedDocumentGenerator />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
