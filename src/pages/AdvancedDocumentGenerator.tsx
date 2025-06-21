@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,7 +73,7 @@ const AdvancedDocumentGenerator = () => {
     alert(`Download functionality for ${format.toUpperCase()} will be implemented with appropriate libraries.`);
   };
 
-  const handleShare = (method: 'email' | 'whatsapp' | 'link') => {
+  const handleShare = (method: 'email' | 'whatsapp' | 'linkedin') => {
     console.log(`Sharing ${documentType} via ${method}`);
     alert(`Share functionality via ${method} will be implemented.`);
   };

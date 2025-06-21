@@ -13,6 +13,14 @@ interface DocumentFormProps {
   documentType: string;
 }
 
+interface FieldConfig {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  placeholder?: string;
+  type?: string;
+  multiline?: boolean;
+}
+
 const DocumentForm: React.FC<DocumentFormProps> = ({
   formData,
   onInputChange,
@@ -37,7 +45,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
   };
 
   const renderField = (fieldName: keyof DocumentData) => {
-    const fieldConfig = {
+    const fieldConfig: Record<keyof DocumentData, FieldConfig> = {
       name: { label: 'Full Name', icon: User, placeholder: 'Enter recipient name' },
       title: { label: 'Title/Position', icon: User, placeholder: 'e.g., CEO, Director, Professor' },
       organization: { label: 'Organization', icon: Building, placeholder: 'Enter organization name' },
@@ -69,7 +77,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
             id={fieldName}
             value={formData[fieldName]}
             onChange={(e) => onInputChange(fieldName, e.target.value)}
-            placeholder={config.placeholder}
+            placeholder={config.placeholder || ''}
             className="bg-white/10 border-white/20 text-white placeholder:text-white/60 min-h-[100px]"
           />
         ) : (
@@ -79,7 +87,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
               type={config.type || 'text'}
               value={formData[fieldName]}
               onChange={(e) => onInputChange(fieldName, e.target.value)}
-              placeholder={config.placeholder}
+              placeholder={config.placeholder || ''}
               className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
             />
             {config.type === 'date' && (
