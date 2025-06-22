@@ -18,6 +18,7 @@ import MOUCollaboration from "./pages/MOUCollaboration";
 import LetterGenerator from "./pages/LetterGenerator";
 import AdvancedDocumentGenerator from "./pages/AdvancedDocumentGenerator";
 import TechSupportPortal from "./pages/TechSupportPortal";
+import StampSignature from "./pages/StampSignature";
 import Donation from "./pages/Donation";
 import NotFound from "./pages/NotFound";
 
@@ -45,6 +46,7 @@ const App = () => (
                 <Route path="/letter-generator" element={<LetterGenerator />} />
                 <Route path="/advanced-document-generator" element={<AdvancedDocumentGenerator />} />
                 <Route path="/tech-support-portal" element={<TechSupportPortal />} />
+                <Route path="/stamp-signature" element={<StampSignature />} />
                 <Route path="/donation" element={<Donation />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
