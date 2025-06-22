@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -116,7 +115,28 @@ const LetterGenerator = () => {
         };
 
       default:
-        return baseContent;
+        return {
+          ...baseContent,
+          mainTitle: `OFFICIAL INVITATION`,
+          subtitle: `By the Authority of UNCIF Council of Excellence`,
+          message: `We, the UNCIF (Uniford National Council of Institutes & Frontliners), hereby extend this Distinguished Invitation to join our Order of Digital Artisans and Innovation Leaders.`,
+          purpose: `Your Excellency has been selected to receive our Academy's comprehensive support services:`,
+          benefits: [
+            'Complete Digital Presence Creation (Professional Websites & Advanced Portals)',
+            'Expert Technical Guidance & Continuous Support Services',
+            'Official Documentation & Legal Services for Your Organization',
+            'Exclusive Membership in Our Distinguished Order of Digital Excellence',
+            'Access to Advanced Technology Resources & Innovation Networks',
+            'Priority Support for All Digital Infrastructure Needs'
+          ],
+          mission: `Our Mission addresses the critical need whereby 68% of initiators and founders lack proper digital presence due to financial constraints or insufficient technical awareness. We stand committed to serving distinguished leaders like yourself with unwavering dedication and excellence.`,
+          techSupport: formData.techChallenges ? 
+            `We acknowledge your specific technological requirements: "${formData.techChallenges}". Our expert council shall provide tailored solutions befitting your distinguished status and organizational needs.` :
+            'We invite you to share your technological challenges and requirements, so our wise council may craft bespoke solutions worthy of your esteemed organization.',
+          customMessage: formData.customNote || 'This invitation represents our commitment to excellence and our desire to support visionary leaders in achieving their digital transformation goals.',
+          closing: `Let your distinguished voice be heard, that we may forge solutions worthy of your greatness and contribute to the advancement of digital excellence in your domain.`,
+          callToAction: `To accept this Official Invitation and begin your journey with UNCIF, please contact our Council through the channels provided below. We eagerly await the honor of serving your distinguished organization.`
+        };
     }
   };
 
