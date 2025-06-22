@@ -137,15 +137,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
-      {/* Hero Section with Full-Length Image */}
+      {/* Hero Section with Updated Design */}
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white min-h-screen flex items-center">
-        {/* Full-length background image */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/lovable-uploads/7777d86d-aa7c-43c8-baed-091e5941ea1b.png" 
-            alt="UNCIF Student Success Story" 
-            className="w-full h-full object-cover opacity-20"
-          />
           <div className="absolute inset-0 bg-gradient-to-br from-purple-600/80 via-purple-700/80 to-purple-800/80"></div>
         </div>
         
@@ -187,14 +181,42 @@ const Home = () => {
             </div>
             
             <div className="relative">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-                <img 
-                  src="/lovable-uploads/98a7f799-92ef-44fc-89af-715cfe303519.png" 
-                  alt="UNCIF Student Success Story" 
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-                <div className="mt-4 text-center">
-                  <p className="text-purple-100 text-sm">Empowering the next generation of leaders</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:scale-105 transition-transform duration-300">
+                    <img 
+                      src="/lovable-uploads/5fe95266-6cb6-46c2-b65d-c9dc769afcd2.png" 
+                      alt="Uniford Success Statistics" 
+                      className="w-full h-40 object-cover rounded-lg"
+                    />
+                    <p className="text-purple-100 text-sm mt-2 text-center">500+ Frontliners Supported</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:scale-105 transition-transform duration-300">
+                    <img 
+                      src="/lovable-uploads/2634e39f-8221-4f95-a7d2-ec8a160cd85b.png" 
+                      alt="Uniford Team Community" 
+                      className="w-full h-40 object-cover rounded-lg"
+                    />
+                    <p className="text-purple-100 text-sm mt-2 text-center">Global Community Network</p>
+                  </div>
+                </div>
+                <div className="space-y-4 mt-8">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:scale-105 transition-transform duration-300">
+                    <img 
+                      src="/lovable-uploads/9229596b-9817-4489-8845-0a3b10394ecd.png" 
+                      alt="Uniford Representatives" 
+                      className="w-full h-40 object-cover rounded-lg"
+                    />
+                    <p className="text-purple-100 text-sm mt-2 text-center">Expert Representatives</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:scale-105 transition-transform duration-300">
+                    <img 
+                      src="/lovable-uploads/7156d42b-ca56-4790-a9ef-8d485c75e12d.png" 
+                      alt="Uniford Guidance Program" 
+                      className="w-full h-40 object-cover rounded-lg"
+                    />
+                    <p className="text-purple-100 text-sm mt-2 text-center">Guidance at Every Step</p>
+                  </div>
                 </div>
               </div>
             </div>
