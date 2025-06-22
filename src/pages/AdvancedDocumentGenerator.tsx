@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   FileText, Download, Share2, Mail, MessageCircle, Link, 
   Award, CreditCard, Shield, Stamp, IdCard, Crown,
-  Calendar, MapPin, Phone, Globe, Star, Users
+  Calendar, MapPin, Phone, Globe, Star, Users, Lock
 } from 'lucide-react';
 import SEO from '@/components/SEO';
 import DocumentPreview from '@/components/DocumentPreview';
@@ -35,6 +35,8 @@ export interface DocumentData {
 }
 
 const AdvancedDocumentGenerator = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authKey, setAuthKey] = useState('');
   const [documentType, setDocumentType] = useState<'certificate' | 'id-card' | 'badge' | 'letterhead' | 'lor' | 'loa' | 'stamp'>('certificate');
   const [selectedFormat, setSelectedFormat] = useState('royal-gold');
   const [formData, setFormData] = useState<DocumentData>({
@@ -53,6 +55,14 @@ const AdvancedDocumentGenerator = () => {
     department: ''
   });
   const documentRef = useRef<HTMLDivElement>(null);
+
+  const handleAuthentication = () => {
+    if (authKey === 'UNCIF01') {
+      setIsAuthenticated(true);
+    } else {
+      alert('Invalid authentication key. Please contact admin for access.');
+    }
+  };
 
   const documentTypes = [
     { id: 'certificate', name: 'Certificate of Achievement', icon: Award, color: 'bg-amber-500' },
@@ -77,6 +87,55 @@ const AdvancedDocumentGenerator = () => {
     console.log(`Sharing ${documentType} via ${method}`);
     alert(`Share functionality via ${method} will be implemented.`);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <SEO 
+          title="Advanced Document Generator - Authentication Required"
+          description="Secure access to UNCIF's advanced document generation suite. Admin authentication required."
+          keywords="UNCIF document generator, admin access, authentication, secure documents"
+          canonical="/advanced-document-generator"
+        />
+
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+          <Card className="w-full max-w-md bg-white/10 backdrop-blur-lg border-white/20 text-white shadow-2xl">
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-10 h-10 text-white" />
+              </div>
+              <CardTitle className="text-2xl font-bold">Admin Access Required</CardTitle>
+              <p className="text-gray-300">Enter your authentication key to access the Advanced Document Generator</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="authKey" className="text-white">Authentication Key</Label>
+                <Input
+                  id="authKey"
+                  type="password"
+                  value={authKey}
+                  onChange={(e) => setAuthKey(e.target.value)}
+                  placeholder="Enter key (e.g., UNCIF01)"
+                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                  onKeyPress={(e) => e.key === 'Enter' && handleAuthentication()}
+                />
+              </div>
+              <Button 
+                onClick={handleAuthentication}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              >
+                <Lock className="w-4 h-4 mr-2" />
+                Authenticate
+              </Button>
+              <div className="text-center text-sm text-gray-400">
+                Contact admin for authentication key access
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

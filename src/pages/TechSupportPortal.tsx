@@ -209,6 +209,26 @@ const TechSupportPortal = () => {
             <p className="text-xl md:text-2xl text-purple-200 max-w-4xl mx-auto mb-8">
               Empowering Innovators, Scholars, Creators & Frontliners with a Powerful Digital Identity
             </p>
+            
+            {/* YLC-T Section */}
+            <div className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 backdrop-blur-lg border border-amber-300/30 rounded-2xl p-8 mt-12 max-w-5xl mx-auto">
+              <div className="flex items-center justify-center mb-6">
+                <div className="bg-gradient-to-r from-amber-400 to-yellow-500 text-purple-900 px-6 py-3 rounded-full font-bold text-2xl shadow-lg">
+                  YLC-T
+                </div>
+              </div>
+              <div className="text-lg md:text-xl text-amber-100 leading-relaxed space-y-4">
+                <p className="font-semibold text-amber-200">
+                  Youth Leads the Change is a tech regiment of UNCIF.
+                </p>
+                <p>
+                  Our Volunteers designed the website, software, portals etc for initiators, founders & business to support them. 
+                  Organization don't ask any amount for this, but you can pay to our volunteer as per your wish but the amount is 
+                  <span className="text-amber-300 font-bold"> "Deserving"</span>. 
+                  Beneficiaries can pay for volunteer as per their efforts to motivate them & appreciate them.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

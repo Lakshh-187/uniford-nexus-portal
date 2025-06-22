@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { 
   Mail, 
@@ -18,7 +19,8 @@ import {
   HandHeart,
   Shield,
   DollarSign,
-  Heart
+  Heart,
+  Stamp
 } from 'lucide-react';
 
 const Footer = () => {
@@ -37,6 +39,7 @@ const Footer = () => {
     { name: 'Advanced Document Generator', path: '/advanced-document-generator', icon: Crown },
     { name: 'Template Generator', path: '/template-generator', icon: FileText },
     { name: 'Letter Generator', path: '/letter-generator', icon: PenTool },
+    { name: 'Stamp & Signature', path: '/stamp-signature', icon: Stamp },
   ];
 
   const socialLinks = [
