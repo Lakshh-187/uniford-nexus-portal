@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -81,6 +80,12 @@ const Donation = () => {
     setDonorInfo(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleDonationTypeChange = (value: string) => {
+    if (value === 'support' || value === 'membership' || value === 'application' || value === 'document') {
+      setDonationType(value);
+    }
+  };
+
   const getCurrentType = () => donationTypes.find(type => type.id === donationType);
 
   const handleDonate = () => {
@@ -143,7 +148,7 @@ const Donation = () => {
               <CardTitle className="text-3xl text-center text-gray-800">Choose Your Support Type</CardTitle>
             </CardHeader>
             <CardContent className="p-8">
-              <RadioGroup value={donationType} onValueChange={setDonationType}>
+              <RadioGroup value={donationType} onValueChange={handleDonationTypeChange}>
                 <div className="grid md:grid-cols-2 gap-6">
                   {donationTypes.map((type) => (
                     <div key={type.id} className="relative">
