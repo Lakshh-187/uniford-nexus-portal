@@ -5,315 +5,277 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Calendar, Download, Share2, Mail, MessageCircle, Link, FileText, Award } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Download, Share2, Mail, MessageCircle, Link, Scroll, Crown, Star } from 'lucide-react';
 import SEO from '@/components/SEO';
 
 const LetterGenerator = () => {
-  const [letterType, setLetterType] = useState<'appreciation' | 'invitation'>('appreciation');
   const [formData, setFormData] = useState({
     name: '',
     title: '',
     organization: '',
-    date: new Date().toISOString().split('T')[0],
-    purpose: '',
+    techChallenges: '',
     customNote: ''
   });
-  const [previewMode, setPreviewMode] = useState<'letter' | 'certificate'>('letter');
   const letterRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const generateLetterContent = () => {
-    if (letterType === 'appreciation') {
-      return `Dear ${formData.name || '[Name]'},
+  const generateInvitationContent = () => {
+    const currentDate = new Date().toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
 
-On behalf of the Uniford National Council of Institutes & Frontliners (UNCIF), I am delighted to extend our heartfelt appreciation and best wishes to you for your remarkable contributions to ${formData.purpose || '[Purpose/Achievement]'}.
-
-Your dedication and exceptional work in your role as ${formData.title || '[Title]'} at ${formData.organization || '[Organization]'} exemplifies the spirit of excellence that UNCIF proudly supports and recognizes.
-
-The UNCIF Council proudly congratulates initiators for their remarkable contributions. This letter serves as both appreciation and an invitation to join our UNCIF-Backed Mentorship Program. Through this program, members can access technical support, credibility endorsements, networking, and volunteering assistance to scale their impact with confidence.
-
-${formData.customNote ? `\n${formData.customNote}\n` : ''}
-
-We look forward to witnessing your continued success and would be honored to support your future endeavors through our comprehensive mentorship and networking initiatives.
-
-With warm regards and best wishes,
-
-Dr. Rajesh Kumar
-Director General
-UNCIF - Uniford National Council of Institutes & Frontliners`;
-    } else {
-      return `Dear ${formData.name || '[Name]'},
-
-Greetings from the Uniford National Council of Institutes & Frontliners (UNCIF)!
-
-We are pleased to extend a cordial invitation to you to join our prestigious UNCIF Mentorship Program, recognizing your outstanding work as ${formData.title || '[Title]'} at ${formData.organization || '[Organization]'}.
-
-Your exceptional contributions to ${formData.purpose || '[Field/Industry]'} have come to our attention, and we believe your expertise would be invaluable to our growing community of innovators and thought leaders.
-
-The UNCIF Council proudly congratulates initiators for their remarkable contributions. This letter serves as both appreciation and an invitation to join our UNCIF-Backed Mentorship Program. Through this program, members can access technical support, credibility endorsements, networking, and volunteering assistance to scale their impact with confidence.
-
-Program Benefits Include:
-• Technical Support & Guidance
-• Credibility Endorsements
-• Professional Networking Opportunities
-• Volunteering & Community Impact Initiatives
-• Access to Exclusive Resources & Events
-
-${formData.customNote ? `\n${formData.customNote}\n` : ''}
-
-We would be honored to have you as part of our distinguished community. Please feel free to reach out to discuss this opportunity further.
-
-Warm regards,
-
-Dr. Rajesh Kumar
-Director General
-UNCIF - Uniford National Council of Institutes & Frontliners`;
-    }
+    return {
+      greeting: `Hearken, Noble ${formData.name || '[Esteemed Name]'}`,
+      title: `${formData.title || '[Your Title]'} of ${formData.organization || '[Your Realm]'}`,
+      invitation: `By Royal Decree of the UNCIF Council`,
+      message: `Thy presence is humbly requested to join our Sacred Order of Digital Artisans, for we have witnessed thy noble endeavors and seek to bestow upon thee the ancient wisdom of technological mastery.`,
+      purpose: `Our Royal Academy stands ready to grant thee:`,
+      benefits: [
+        'Digital Presence Creation (Websites & Portals)',
+        'Technical Guidance & Support',
+        'Royal Documentation Services',
+        'Membership in Our Distinguished Order'
+      ],
+      mission: `For we know that 68% of noble initiators & founders lack digital footprint due to financial constraints or lack of awareness. Our Sacred Mission is to serve thee with unwavering dedication.`,
+      customMessage: formData.customNote || 'Share thy technological challenges, and our wise council shall provide thee with solutions befitting thy noble status.',
+      closing: `Let thy voice be heard, that we may craft solutions worthy of thy greatness.`,
+      date: currentDate,
+      signature: 'By the Grace of Innovation'
+    };
   };
 
-  const handleDownload = (format: 'pdf' | 'png' | 'jpg' | 'docx') => {
-    // Implementation would use libraries like jspdf, html-to-image, etc.
-    console.log(`Downloading as ${format.toUpperCase()}`);
-    // For demo purposes, we'll show an alert
-    alert(`Download functionality for ${format.toUpperCase()} will be implemented with appropriate libraries.`);
+  const handleDownload = (format: 'pdf' | 'png' | 'jpg') => {
+    console.log(`Downloading royal invitation as ${format.toUpperCase()}`);
+    alert(`Royal invitation will be prepared in ${format.toUpperCase()} format for thee.`);
   };
 
   const handleShare = (method: 'email' | 'whatsapp' | 'link') => {
-    const letterContent = generateLetterContent();
+    const content = generateInvitationContent();
+    const fullContent = `${content.greeting}\n\n${content.invitation}\n\n${content.message}\n\n${content.mission}\n\n${content.customMessage}\n\n${content.closing}\n\n${content.signature}`;
     
     switch (method) {
       case 'email':
-        const emailSubject = `UNCIF ${letterType === 'appreciation' ? 'Appreciation' : 'Invitation'} Letter`;
-        window.open(`mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(letterContent)}`);
+        window.open(`mailto:?subject=Royal Invitation from UNCIF&body=${encodeURIComponent(fullContent)}`);
         break;
       case 'whatsapp':
-        window.open(`https://wa.me/?text=${encodeURIComponent(letterContent)}`);
+        window.open(`https://wa.me/?text=${encodeURIComponent(fullContent)}`);
         break;
       case 'link':
-        navigator.clipboard.writeText(letterContent);
-        alert('Letter content copied to clipboard!');
+        navigator.clipboard.writeText(fullContent);
+        alert('Royal invitation has been copied to thy clipboard!');
         break;
     }
   };
+
+  const content = generateInvitationContent();
 
   return (
     <>
       <SEO 
-        title="Letter Generator - Appreciation & Invitation Letters"
-        description="Generate professional appreciation and invitation letters with UNCIF's modern letter generator. Create, customize, and download formal letters with royal aesthetics and professional formatting."
-        keywords="UNCIF letter generator, appreciation letter, invitation letter, professional templates, Uniford National Council, formal letters, certificate generator"
+        title="Royal Invitation Generator - UNCIF Tech Support"
+        description="Create royal-style invitation letters for UNCIF's tech support program. Join our sacred order of digital artisans and receive technical guidance for your digital presence."
+        keywords="UNCIF royal invitation, tech support invitation, digital presence, website creation, technical support, royal decree"
         canonical="/letter-generator"
       />
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-slate-100">
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-purple-900 via-purple-800 to-purple-900 text-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center mr-4">
-                <FileText className="w-8 h-8 text-white" />
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-purple-900">
+        {/* Majestic Header */}
+        <div className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-white py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <div className="flex items-center justify-center mb-8">
+              <Crown className="w-16 h-16 text-yellow-200 mr-4" />
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold mb-2">Letter Generator</h1>
-                <p className="text-xl text-purple-200">Appreciation & Invitation Letters</p>
+                <h1 className="text-5xl md:text-6xl font-bold mb-4" style={{ fontFamily: 'serif' }}>
+                  Royal Invitation Generator
+                </h1>
+                <p className="text-2xl text-amber-100 font-medium">
+                  Sacred Decree for Tech Support
+                </p>
               </div>
+              <Crown className="w-16 h-16 text-yellow-200 ml-4" />
             </div>
-            <p className="text-lg text-purple-100 max-w-3xl mx-auto">
-              Create professional, royal-styled letters with UNCIF's modern letter generator. 
-              Perfect for appreciation letters and mentorship program invitations.
+            <p className="text-lg text-amber-50 max-w-4xl mx-auto leading-relaxed">
+              Join our noble quest to empower 68% of initiators & founders who lack digital presence. 
+              Let UNCIF bestow upon thee the gift of technological mastery.
             </p>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Form Section */}
-            <Card className="h-fit border-2 border-purple-200 shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100">
-                <CardTitle className="text-2xl text-purple-900">Letter Configuration</CardTitle>
+          <div className="grid lg:grid-cols-2 gap-12">
+            {/* Royal Form */}
+            <Card className="border-4 border-amber-400 shadow-2xl bg-gradient-to-br from-amber-50 to-yellow-50">
+              <CardHeader className="bg-gradient-to-r from-purple-800 to-indigo-800 text-white rounded-t-lg">
+                <CardTitle className="text-2xl flex items-center">
+                  <Scroll className="w-8 h-8 mr-3" />
+                  Royal Details
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-8 space-y-6">
-                {/* Letter Type Selection */}
-                <div className="space-y-4">
-                  <Label className="text-lg font-semibold text-gray-800">Letter Type</Label>
-                  <RadioGroup value={letterType} onValueChange={(value) => setLetterType(value as 'appreciation' | 'invitation')}>
-                    <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-purple-50 transition-colors">
-                      <RadioGroupItem value="appreciation" id="appreciation" />
-                      <Label htmlFor="appreciation" className="flex items-center cursor-pointer">
-                        <Award className="w-5 h-5 mr-2 text-amber-600" />
-                        Letter of Appreciation & Best Wishes
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-purple-50 transition-colors">
-                      <RadioGroupItem value="invitation" id="invitation" />
-                      <Label htmlFor="invitation" className="flex items-center cursor-pointer">
-                        <Mail className="w-5 h-5 mr-2 text-purple-600" />
-                        Invitation to UNCIF Mentorship Program
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Form Fields */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Recipient Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      placeholder="Enter full name"
-                      className="border-purple-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Title/Designation</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => handleInputChange('title', e.target.value)}
-                      placeholder="e.g., CEO, Director, Professor"
-                      className="border-purple-200"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-lg font-semibold text-purple-900">Noble Name *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    placeholder="Enter thy distinguished name"
+                    className="border-2 border-amber-300 focus:border-purple-500 text-lg p-4"
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="organization">Institute/Organization</Label>
+                  <Label htmlFor="title" className="text-lg font-semibold text-purple-900">Royal Title</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => handleInputChange('title', e.target.value)}
+                    placeholder="e.g., Founder, CEO, Director"
+                    className="border-2 border-amber-300 focus:border-purple-500 text-lg p-4"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="organization" className="text-lg font-semibold text-purple-900">Your Kingdom/Organization</Label>
                   <Input
                     id="organization"
                     value={formData.organization}
                     onChange={(e) => handleInputChange('organization', e.target.value)}
-                    placeholder="Enter organization name"
-                    className="border-purple-200"
+                    placeholder="Enter thy realm's name"
+                    className="border-2 border-amber-300 focus:border-purple-500 text-lg p-4"
                   />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="date">Date</Label>
-                    <div className="relative">
-                      <Input
-                        id="date"
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) => handleInputChange('date', e.target.value)}
-                        className="border-purple-200"
-                      />
-                      <Calendar className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="purpose">
-                      {letterType === 'appreciation' ? 'Achievement/Purpose' : 'Field/Industry'}
-                    </Label>
-                    <Input
-                      id="purpose"
-                      value={formData.purpose}
-                      onChange={(e) => handleInputChange('purpose', e.target.value)}
-                      placeholder={letterType === 'appreciation' ? 'What are you appreciating?' : 'Area of expertise'}
-                      className="border-purple-200"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="techChallenges" className="text-lg font-semibold text-purple-900">Thy Tech Challenges</Label>
+                  <Textarea
+                    id="techChallenges"
+                    value={formData.techChallenges}
+                    onChange={(e) => handleInputChange('techChallenges', e.target.value)}
+                    placeholder="Describe thy digital needs (website, portal, technical support...)"
+                    className="border-2 border-amber-300 focus:border-purple-500 min-h-[100px] text-lg p-4"
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="customNote">Custom Note (Optional)</Label>
+                  <Label htmlFor="customNote" className="text-lg font-semibold text-purple-900">Additional Royal Message</Label>
                   <Textarea
                     id="customNote"
                     value={formData.customNote}
                     onChange={(e) => handleInputChange('customNote', e.target.value)}
-                    placeholder="Add any additional message or note..."
-                    className="border-purple-200 min-h-[100px]"
+                    placeholder="Any special message for thy royal invitation..."
+                    className="border-2 border-amber-300 focus:border-purple-500 min-h-[100px] text-lg p-4"
                   />
-                </div>
-
-                {/* Preview Mode Toggle */}
-                <div className="flex items-center space-x-4 pt-4 border-t">
-                  <Label className="font-semibold">Preview Style:</Label>
-                  <RadioGroup 
-                    value={previewMode} 
-                    onValueChange={(value) => setPreviewMode(value as 'letter' | 'certificate')}
-                    className="flex space-x-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="letter" id="letter-mode" />
-                      <Label htmlFor="letter-mode">Letter Format</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="certificate" id="certificate-mode" />
-                      <Label htmlFor="certificate-mode">Certificate Style</Label>
-                    </div>
-                  </RadioGroup>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Preview Section */}
-            <Card className="border-2 border-purple-200 shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100">
-                <CardTitle className="text-2xl text-amber-900 flex items-center">
-                  <FileText className="w-6 h-6 mr-2" />
-                  Live Preview
+            {/* Royal Scroll Preview */}
+            <Card className="border-4 border-purple-600 shadow-2xl">
+              <CardHeader className="bg-gradient-to-r from-amber-600 to-yellow-500 text-white rounded-t-lg">
+                <CardTitle className="text-2xl flex items-center">
+                  <Scroll className="w-8 h-8 mr-3" />
+                  Royal Invitation Scroll
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <div 
                   ref={letterRef}
-                  className={`min-h-[600px] bg-white relative overflow-hidden ${
-                    previewMode === 'certificate' ? 'border-8 border-double border-amber-600' : ''
-                  }`}
+                  className="min-h-[700px] relative"
                   style={{
-                    fontFamily: '"Lora", "Garamond", serif',
-                    backgroundImage: 'url("data:image/svg+xml,%3Csvg width="200" height="200" xmlns="http://www.w3.org/2000/svg"%3E%3Ctext x="50%" y="50%" font-size="24" fill="rgba(147,51,234,0.05)" text-anchor="middle" dominant-baseline="middle"%3EUNCIF%3C/text%3E%3C/svg%3E")',
-                    backgroundRepeat: 'repeat',
-                    backgroundSize: '200px 200px'
+                    background: 'linear-gradient(45deg, #f8f4e6 0%, #f0f0f0 50%, #f8f4e6 100%)',
+                    fontFamily: '"Times New Roman", "Book Antiqua", serif'
                   }}
                 >
-                  {/* Letter Header */}
-                  <div className="text-center p-8 border-b-2 border-purple-900">
-                    <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-white font-bold text-2xl">U</span>
+                  {/* Decorative Border */}
+                  <div className="absolute inset-4 border-8 border-double border-purple-600 rounded-lg bg-gradient-to-br from-purple-50 to-indigo-50">
+                    {/* Corner Decorations */}
+                    <div className="absolute top-2 left-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center">
+                      <Star className="w-4 h-4 text-purple-800" />
                     </div>
-                    <h1 className="text-2xl font-bold text-purple-900 mb-2">
-                      UNIFORD NATIONAL COUNCIL
-                    </h1>
-                    <h2 className="text-lg text-purple-700 mb-1">
-                      OF INSTITUTES & FRONTLINERS
-                    </h2>
-                    <p className="text-sm text-gray-600">(UNCIF)</p>
-                  </div>
-
-                  {/* Letter Content */}
-                  <div className="p-8">
-                    <div className="text-right mb-6">
-                      <p className="text-gray-600">Date: {new Date(formData.date).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}</p>
+                    <div className="absolute top-2 right-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center">
+                      <Star className="w-4 h-4 text-purple-800" />
+                    </div>
+                    <div className="absolute bottom-2 left-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center">
+                      <Star className="w-4 h-4 text-purple-800" />
+                    </div>
+                    <div className="absolute bottom-2 right-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center">
+                      <Star className="w-4 h-4 text-purple-800" />
                     </div>
 
-                    <div className="prose prose-lg max-w-none">
-                      <pre className="whitespace-pre-wrap font-serif text-gray-800 leading-7">
-                        {generateLetterContent()}
-                      </pre>
-                    </div>
-
-                    {/* Signature Section */}
-                    <div className="mt-12 pt-8 border-t border-gray-300">
+                    {/* Royal Content */}
+                    <div className="p-8 space-y-6">
+                      {/* Header Crown */}
                       <div className="text-center">
-                        <div className="w-32 h-16 bg-gradient-to-r from-purple-100 to-purple-200 rounded mx-auto mb-2 flex items-center justify-center">
-                          <span className="text-purple-600 font-cursive text-lg">Signature</span>
+                        <Crown className="w-16 h-16 text-amber-600 mx-auto mb-4" />
+                        <div className="text-3xl font-bold text-purple-900 mb-2">UNCIF</div>
+                        <div className="text-lg text-purple-700 font-semibold">Uniford National Council of Institutes & Frontliners</div>
+                        <div className="w-32 h-1 bg-gradient-to-r from-purple-600 to-amber-500 mx-auto mt-4"></div>
+                      </div>
+
+                      {/* Royal Greeting */}
+                      <div className="text-center">
+                        <h2 className="text-2xl font-bold text-purple-900 mb-3" style={{ fontFamily: 'serif' }}>
+                          {content.greeting}
+                        </h2>
+                        <p className="text-lg text-purple-700 font-medium italic">
+                          {content.title}
+                        </p>
+                      </div>
+
+                      {/* Royal Decree */}
+                      <div className="text-center bg-gradient-to-r from-amber-100 to-yellow-100 p-4 rounded-lg border-2 border-amber-400">
+                        <p className="text-xl font-bold text-purple-900">
+                          {content.invitation}
+                        </p>
+                      </div>
+
+                      {/* Main Message */}
+                      <div className="space-y-4 text-center">
+                        <p className="text-lg text-gray-800 leading-relaxed font-medium">
+                          {content.message}
+                        </p>
+
+                        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                          <p className="text-lg font-semibold text-purple-900 mb-3">{content.purpose}</p>
+                          <ul className="space-y-2 text-left">
+                            {content.benefits.map((benefit, index) => (
+                              <li key={index} className="flex items-center text-purple-800">
+                                <Star className="w-4 h-4 text-amber-500 mr-2 flex-shrink-0" />
+                                <span className="font-medium">{benefit}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-                        <p className="font-semibold text-gray-800">Dr. Rajesh Kumar</p>
-                        <p className="text-gray-600">Director General</p>
-                        <p className="text-gray-600">UNCIF - Uniford National Council</p>
+
+                        <p className="text-base text-gray-700 italic leading-relaxed">
+                          {content.mission}
+                        </p>
+
+                        <p className="text-lg text-purple-800 font-medium">
+                          {content.customMessage}
+                        </p>
+
+                        <p className="text-lg text-purple-900 font-semibold">
+                          {content.closing}
+                        </p>
+                      </div>
+
+                      {/* Royal Signature */}
+                      <div className="text-center pt-6 border-t border-purple-300">
+                        <p className="text-sm text-gray-600 mb-2">On this {content.date}</p>
+                        <div className="text-lg font-bold text-purple-900">
+                          {content.signature}
+                        </div>
+                        <div className="text-base text-purple-700">
+                          UNCIF Royal Council
+                        </div>
+                        <Crown className="w-8 h-8 text-amber-600 mx-auto mt-2" />
                       </div>
                     </div>
                   </div>
@@ -322,23 +284,21 @@ UNCIF - Uniford National Council of Institutes & Frontliners`;
             </Card>
           </div>
 
-          {/* Action Buttons */}
-          <Card className="mt-8 border-2 border-purple-200 shadow-xl">
+          {/* Royal Action Buttons */}
+          <Card className="mt-12 border-4 border-amber-400 shadow-2xl bg-gradient-to-r from-purple-50 to-indigo-50">
             <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row gap-6">
-                {/* Download Options */}
+              <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center">
-                    <Download className="w-5 h-5 mr-2" />
-                    Download Options
+                  <h3 className="text-xl font-bold mb-6 text-purple-900 flex items-center">
+                    <Download className="w-6 h-6 mr-3" />
+                    Download Royal Scroll
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {['pdf', 'png', 'jpg', 'docx'].map((format) => (
+                  <div className="grid grid-cols-3 gap-4">
+                    {['pdf', 'png', 'jpg'].map((format) => (
                       <Button
                         key={format}
                         onClick={() => handleDownload(format as any)}
-                        variant="outline"
-                        className="border-purple-200 hover:bg-purple-50"
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3"
                       >
                         {format.toUpperCase()}
                       </Button>
@@ -346,33 +306,29 @@ UNCIF - Uniford National Council of Institutes & Frontliners`;
                   </div>
                 </div>
 
-                {/* Share Options */}
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center">
-                    <Share2 className="w-5 h-5 mr-2" />
-                    Share Options
+                  <h3 className="text-xl font-bold mb-6 text-purple-900 flex items-center">
+                    <Share2 className="w-6 h-6 mr-3" />
+                    Share Royal Decree
                   </h3>
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     <Button
                       onClick={() => handleShare('email')}
-                      variant="outline"
-                      className="border-purple-200 hover:bg-purple-50 flex-1"
+                      className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-semibold flex-1"
                     >
                       <Mail className="w-4 h-4 mr-2" />
                       Email
                     </Button>
                     <Button
                       onClick={() => handleShare('whatsapp')}
-                      variant="outline"
-                      className="border-purple-200 hover:bg-purple-50 flex-1"
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold flex-1"
                     >
                       <MessageCircle className="w-4 h-4 mr-2" />
                       WhatsApp
                     </Button>
                     <Button
                       onClick={() => handleShare('link')}
-                      variant="outline"
-                      className="border-purple-200 hover:bg-purple-50 flex-1"
+                      className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold flex-1"
                     >
                       <Link className="w-4 h-4 mr-2" />
                       Copy
