@@ -27,7 +27,8 @@ import {
   Code,
   Calculator,
   Eye,
-  Receipt
+  Receipt,
+  Link as LinkIcon
 } from 'lucide-react';
 
 interface ProjectCard {
@@ -173,6 +174,63 @@ const TechSupportPortal = () => {
     }
   ];
 
+  const sampleWebsites = [
+    {
+      title: "Gift Portal",
+      url: "https://gift.unipitch.in/",
+      description: "E-commerce platform for gifting solutions",
+      category: "E-commerce"
+    },
+    {
+      title: "Ablestar",
+      url: "https://ablestar.youngburg.com/",
+      description: "Professional business platform",
+      category: "Business"
+    },
+    {
+      title: "Dexkor",
+      url: "https://dexkor.unipitch.in/",
+      description: "Technology services platform",
+      category: "Technology"
+    },
+    {
+      title: "Ebooknia",
+      url: "https://ebooknia.unipitch.in/",
+      description: "Digital book publishing platform",
+      category: "Education"
+    },
+    {
+      title: "Pitchburg",
+      url: "https://pitchburg.uniford.org/",
+      description: "Startup pitching and investment platform",
+      category: "Business"
+    },
+    {
+      title: "6i Platform",
+      url: "https://6i.uniford.org/",
+      description: "Innovation and investment network",
+      category: "Innovation"
+    },
+    {
+      title: "Uniford Foundation",
+      url: "https://www.uniford.org/",
+      description: "Educational foundation website",
+      category: "Foundation"
+    },
+    {
+      title: "Uniwave",
+      url: "https://www.uniwave.in/",
+      description: "Educational technology platform",
+      category: "EdTech"
+    },
+    {
+      title: "Fashion Platform",
+      url: "https://fashion.unipitch.in/",
+      description: "Fashion e-commerce solution",
+      category: "Fashion"
+    }
+  ];
+
   const handleWhatsAppConnect = (phoneNumber: string, projectTitle: string) => {
     const message = `Hi! I'm interested in the ${projectTitle} project from UNCIF Tech Support Portal. Can you provide more details?`;
     const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
@@ -276,6 +334,44 @@ const TechSupportPortal = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Sample Websites Section */}
+        <div className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">🌐 Sample Websites Portfolio</h2>
+            <p className="text-xl text-gray-600">Explore our live projects and successful implementations</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sampleWebsites.map((website, index) => (
+              <Card key={index} className="bg-white shadow-xl border-gray-200 hover:shadow-2xl transition-all duration-300 group">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+                      {website.category}
+                    </Badge>
+                    <LinkIcon className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                  </div>
+                  <CardTitle className="text-xl text-gray-900 group-hover:text-blue-700 transition-colors">{website.title}</CardTitle>
+                  <p className="text-gray-600">{website.description}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-sm text-gray-500 font-mono bg-gray-50 p-2 rounded border truncate">
+                    {website.url}
+                  </div>
+                  
+                  <Button 
+                    onClick={() => window.open(website.url, '_blank')}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Visit Live Website
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
 
         {/* Projects Section */}
         <div className="mb-16">

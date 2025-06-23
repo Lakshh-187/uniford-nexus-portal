@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import OrganizationMemories from '@/components/OrganizationMemories';
+import UNCIFEventsGallery from '@/components/UNCIFEventsGallery';
 import { 
   ArrowDown, 
   Book, 
@@ -247,6 +249,9 @@ const Home = () => {
 
       {/* Organization Memories Section */}
       <OrganizationMemories />
+
+      {/* UNCIF Events & Gallery Section */}
+      <UNCIFEventsGallery />
 
       {/* About Section */}
       <section className="py-20 bg-gradient-to-r from-purple-50 to-white">
