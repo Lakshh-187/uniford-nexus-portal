@@ -59,7 +59,7 @@ const TechSupportPortal = () => {
       pages: "3-5 Pages",
       category: "Portfolio",
       whatsappNumber: "+917347099610",
-      sampleUrl: "https://portfolio-sample.uncif.org"
+      sampleUrl: "https://www.uniford.org/"
     },
     {
       id: 2,
@@ -71,7 +71,7 @@ const TechSupportPortal = () => {
       pages: "8-10 Pages",
       category: "Business",
       whatsappNumber: "+917347099610",
-      sampleUrl: "https://business-sample.uncif.org"
+      sampleUrl: "https://ablestar.youngburg.com/"
     },
     {
       id: 3,
@@ -83,7 +83,7 @@ const TechSupportPortal = () => {
       pages: "12-15 Pages",
       category: "E-commerce",
       whatsappNumber: "+919876543210",
-      sampleUrl: "https://ecommerce-sample.uncif.org"
+      sampleUrl: "https://gift.unipitch.in/"
     },
     {
       id: 4,
@@ -95,7 +95,7 @@ const TechSupportPortal = () => {
       pages: "10-12 Pages",
       category: "Portfolio",
       whatsappNumber: "+919876543210",
-      sampleUrl: "https://portfolio-blog-sample.uncif.org"
+      sampleUrl: "https://dexkor.unipitch.in/"
     },
     {
       id: 5,
@@ -107,7 +107,7 @@ const TechSupportPortal = () => {
       pages: "20+ Pages",
       category: "Education",
       whatsappNumber: "+919876543210",
-      sampleUrl: "https://education-sample.uncif.org"
+      sampleUrl: "https://www.uniwave.in/"
     },
     {
       id: 6,
@@ -119,7 +119,7 @@ const TechSupportPortal = () => {
       pages: "15-20 Pages",
       category: "Corporate",
       whatsappNumber: "+919876543210",
-      sampleUrl: "https://corporate-sample.uncif.org"
+      sampleUrl: "https://pitchburg.uniford.org/"
     },
     {
       id: 7,
@@ -131,7 +131,7 @@ const TechSupportPortal = () => {
       pages: "Custom Pages",
       category: "Application",
       whatsappNumber: "+919876543210",
-      sampleUrl: "https://webapp-sample.uncif.org"
+      sampleUrl: "https://6i.uniford.org/"
     },
     {
       id: 8,
@@ -143,7 +143,7 @@ const TechSupportPortal = () => {
       pages: "50+ Pages",
       category: "Enterprise",
       whatsappNumber: "+919876543210",
-      sampleUrl: "https://enterprise-sample.uncif.org"
+      sampleUrl: "https://fashion.unipitch.in/"
     }
   ];
 
