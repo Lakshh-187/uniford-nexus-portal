@@ -20,7 +20,8 @@ import {
   Shield,
   DollarSign,
   Heart,
-  Stamp
+  Stamp,
+  Settings
 } from 'lucide-react';
 
 const Footer = () => {
@@ -34,11 +35,12 @@ const Footer = () => {
     { name: 'Our Team', path: '/team', icon: Users },
   ];
 
-  const newPages = [
+  const advancedFeatures = [
     { name: 'Tech Support Portal', path: '/tech-support-portal', icon: Monitor },
     { name: 'Advanced Document Generator', path: '/advanced-document-generator', icon: Crown },
     { name: 'Template Generator', path: '/template-generator', icon: FileText },
     { name: 'Letter Generator', path: '/letter-generator', icon: PenTool },
+    { name: 'Policy & Agreement', path: '/policy-agreement', icon: Settings },
     { name: 'Stamp & Signature', path: '/stamp-signature', icon: Stamp },
   ];
 
@@ -122,9 +124,9 @@ const Footer = () => {
 
           {/* Advanced Features */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-purple-300">Advanced Features</h3>
+            <h3 className="text-lg font-semibold mb-4 text-purple-300">Advanced Tools</h3>
             <ul className="space-y-3">
-              {newPages.map((page) => (
+              {advancedFeatures.map((page) => (
                 <li key={page.name}>
                   <Link 
                     to={page.path}

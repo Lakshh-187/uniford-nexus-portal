@@ -20,7 +20,6 @@ import AdvancedDocumentGenerator from "./pages/AdvancedDocumentGenerator";
 import TechSupportPortal from "./pages/TechSupportPortal";
 import StampSignature from "./pages/StampSignature";
 import Donation from "./pages/Donation";
-import LetterOfClearance from "./pages/LetterOfClearance";
 import PolicyAgreement from "./pages/PolicyAgreement";
 import NotFound from "./pages/NotFound";
 
@@ -50,7 +49,6 @@ const App = () => (
                 <Route path="/tech-support-portal" element={<TechSupportPortal />} />
                 <Route path="/stamp-signature" element={<StampSignature />} />
                 <Route path="/donation" element={<Donation />} />
-                <Route path="/letter-of-clearance" element={<LetterOfClearance />} />
                 <Route path="/policy-agreement" element={<PolicyAgreement />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
