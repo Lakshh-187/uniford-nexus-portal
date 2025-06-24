@@ -20,6 +20,7 @@ import AdvancedDocumentGenerator from "./pages/AdvancedDocumentGenerator";
 import TechSupportPortal from "./pages/TechSupportPortal";
 import StampSignature from "./pages/StampSignature";
 import Donation from "./pages/Donation";
+import LetterOfClearance from "./pages/LetterOfClearance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
                 <Route path="/tech-support-portal" element={<TechSupportPortal />} />
                 <Route path="/stamp-signature" element={<StampSignature />} />
                 <Route path="/donation" element={<Donation />} />
+                <Route path="/letter-of-clearance" element={<LetterOfClearance />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
