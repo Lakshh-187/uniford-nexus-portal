@@ -2,12 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Download, FileText, Image, FileImage, File } from 'lucide-react';
+import { Download, FileText, Image, FileImage, File, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ClearancePreview from '@/components/ClearancePreview';
 import ClearanceForm from '@/components/ClearanceForm';
@@ -75,6 +70,62 @@ const LetterOfClearance = () => {
     }));
   };
 
+  const generateSampleData = () => {
+    setFormData({
+      date: new Date().toISOString().split('T')[0],
+      frontlinerName: 'John Doe',
+      frontlinerOrganization: 'Community Health Initiative',
+      frontlinerContact: '+1 (555) 123-4567',
+      representativeName: 'Sarah Johnson',
+      representativeId: 'UNCIF-2024-001',
+      representativeDepartment: 'Digital Outreach Team',
+      visitDate: new Date().toISOString().split('T')[0],
+      location: 'Downtown Community Center',
+      isInterested: 'yes',
+      requestedServices: {
+        website: true,
+        digitalIdentity: true,
+        other: false,
+        otherText: ''
+      },
+      additionalNotes: 'Interested in setting up online presence for the organization',
+      overallFeedback: 'Very satisfied with the information provided and support offered'
+    });
+    
+    toast({
+      title: "Sample Data Generated",
+      description: "Form has been filled with sample data for demonstration",
+    });
+  };
+
+  const clearForm = () => {
+    setFormData({
+      date: new Date().toISOString().split('T')[0],
+      frontlinerName: '',
+      frontlinerOrganization: '',
+      frontlinerContact: '',
+      representativeName: '',
+      representativeId: '',
+      representativeDepartment: '',
+      visitDate: new Date().toISOString().split('T')[0],
+      location: '',
+      isInterested: 'yes',
+      requestedServices: {
+        website: false,
+        digitalIdentity: false,
+        other: false,
+        otherText: ''
+      },
+      additionalNotes: '',
+      overallFeedback: ''
+    });
+    
+    toast({
+      title: "Form Cleared",
+      description: "All form fields have been reset",
+    });
+  };
+
   const downloadPDF = async () => {
     try {
       const jsPDF = (await import('jspdf')).default;
@@ -98,7 +149,7 @@ const LetterOfClearance = () => {
       doc.text('✓ Answered all my queries to my satisfaction', 25, 140);
       doc.text('✓ Provided me with option to connect further', 25, 150);
       
-      doc.save('letter-of-clearance.pdf');
+      doc.save(`letter-of-clearance-${formData.frontlinerName || 'document'}.pdf`);
       
       toast({
         title: "PDF Downloaded",
@@ -120,7 +171,7 @@ const LetterOfClearance = () => {
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(previewRef.current);
       const link = document.createElement('a');
-      link.download = `letter-of-clearance.${format}`;
+      link.download = `letter-of-clearance-${formData.frontlinerName || 'document'}.${format}`;
       link.href = canvas.toDataURL(format === 'png' ? 'image/png' : 'image/jpeg');
       link.click();
       
@@ -142,11 +193,23 @@ const LetterOfClearance = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            UNCIF Letter of Clearance Generator
+            Letter of Clearance Generator
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Generate professional Letter of Clearance documents for your Digital Backbone Campaign visits
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            Generate professional Letter of Clearance documents for UNCIF Digital Backbone Campaign visits. 
+            Fill in the details below and download your customized letter instantly.
           </p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex justify-center gap-4 mb-8">
+          <Button onClick={generateSampleData} variant="outline" className="flex items-center gap-2">
+            <Wand2 className="w-4 h-4" />
+            Generate Sample Data
+          </Button>
+          <Button onClick={clearForm} variant="outline">
+            Clear Form
+          </Button>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -161,33 +224,52 @@ const LetterOfClearance = () => {
           <div className="space-y-6">
             <ClearancePreview ref={previewRef} data={formData} />
             
-            {/* Download Buttons */}
+            {/* Download Options */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Download className="w-5 h-5 mr-2" />
-                  Download Options
+                  Download Your Letter
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button onClick={downloadPDF} className="w-full">
+                  <Button 
+                    onClick={downloadPDF} 
+                    className="w-full bg-red-600 hover:bg-red-700"
+                    disabled={!formData.frontlinerName}
+                  >
                     <FileText className="w-4 h-4 mr-2" />
-                    PDF
+                    Download PDF
                   </Button>
-                  <Button onClick={() => downloadImage('png')} variant="outline" className="w-full">
+                  <Button 
+                    onClick={() => downloadImage('png')} 
+                    variant="outline" 
+                    className="w-full"
+                    disabled={!formData.frontlinerName}
+                  >
                     <Image className="w-4 h-4 mr-2" />
-                    PNG
+                    Download PNG
                   </Button>
-                  <Button onClick={() => downloadImage('jpg')} variant="outline" className="w-full">
+                  <Button 
+                    onClick={() => downloadImage('jpg')} 
+                    variant="outline" 
+                    className="w-full"
+                    disabled={!formData.frontlinerName}
+                  >
                     <FileImage className="w-4 h-4 mr-2" />
-                    JPG
+                    Download JPG
                   </Button>
                   <Button variant="outline" className="w-full" disabled>
                     <File className="w-4 h-4 mr-2" />
                     Word (Coming Soon)
                   </Button>
                 </div>
+                {!formData.frontlinerName && (
+                  <p className="text-sm text-gray-500 mt-2 text-center">
+                    Fill in at least the frontliner name to enable downloads
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
