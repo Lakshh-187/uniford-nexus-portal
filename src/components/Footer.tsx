@@ -21,7 +21,8 @@ import {
   DollarSign,
   Heart,
   Stamp,
-  Settings
+  Settings,
+  FileCheck
 } from 'lucide-react';
 
 const Footer = () => {
