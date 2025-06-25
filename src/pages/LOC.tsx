@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Share2, Mail, MessageCircle, Link, FileCheck, UserCheck, ClipboardCheck, Award, Star } from 'lucide-react';
+import { Download, Share2, Mail, MessageCircle, Link, FileCheck, UserCheck, ClipboardCheck, Award, Star, Send } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import SEO from '@/components/SEO';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -51,6 +52,7 @@ const LOC = () => {
     responsivenessRating: 0,
     overallRating: 0,
     additionalComments: '',
+    writtenFeedback: '',
     hasSignature: false,
     hasStamp: false,
     signatureName: '',
@@ -58,10 +60,12 @@ const LOC = () => {
   });
 
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [activeTab, setActiveTab] = useState('clearance');
   const clearanceRef = useRef<HTMLDivElement>(null);
   const responseRef = useRef<HTMLDivElement>(null);
   const ratingRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const handleClearanceInputChange = (field: string, value: string) => {
     setClearanceData(prev => ({ ...prev, [field]: value }));
@@ -144,6 +148,7 @@ const LOC = () => {
       responsivenessRating: ratingData.responsivenessRating,
       overallRating: ratingData.overallRating,
       additionalComments: ratingData.additionalComments || '[No additional comments]',
+      writtenFeedback: ratingData.writtenFeedback || '[No written feedback provided]',
       hasSignature: ratingData.hasSignature,
       hasStamp: ratingData.hasStamp,
       signatureName: ratingData.signatureName || '[Signature Name]',
@@ -160,7 +165,6 @@ const LOC = () => {
     
     try {
       if (format === 'word') {
-        // For Word format, create text content based on document type
         let textContent = '';
         if (type === 'clearance') {
           const content = generateClearanceContent();
@@ -170,7 +174,7 @@ const LOC = () => {
           textContent = `${content.title}\n${content.subtitle}\n\nFrontliner Details:\nName: ${content.frontlinerName}\nTitle: ${content.frontlinerTitle}\nOrganization: ${content.frontlinerOrganization}\nContact: ${content.contactInfo}\n\nEngagement Details:\nInterest Level: ${content.interestLevel}\nQuestions: ${content.specificQuestions}\nFollow-up: ${content.followUpRequired}\nComments: ${content.additionalComments}\n\nRepresentative: ${content.representativeName}\nDate: ${content.meetingDate}`;
         } else {
           const content = generateRatingContent();
-          textContent = `${content.title}\n${content.subtitle}\n\nFrontliner: ${content.frontlinerName} (${content.frontlinerTitle})\nOrganization: ${content.frontlinerOrganization}\n\nRepresentative: ${content.representativeName}\nID: ${content.representativeId}\nDepartment: ${content.department}\nMeeting Date: ${content.meetingDate}\n\nRatings:\nCommunication: ${content.communicationRating}/5\nKnowledge: ${content.knowledgeRating}/5\nProfessionalism: ${content.professionalismRating}/5\nResponsiveness: ${content.responsivenessRating}/5\nOverall: ${content.overallRating}/5\n\nComments: ${content.additionalComments}\n\nSignature: ${content.hasSignature ? 'Yes' : 'No'}\nStamp: ${content.hasStamp ? 'Yes' : 'No'}`;
+          textContent = `${content.title}\n${content.subtitle}\n\nFrontliner: ${content.frontlinerName} (${content.frontlinerTitle})\nOrganization: ${content.frontlinerOrganization}\n\nRepresentative: ${content.representativeName}\nID: ${content.representativeId}\nDepartment: ${content.department}\nMeeting Date: ${content.meetingDate}\n\nRatings:\nCommunication: ${content.communicationRating}/5\nKnowledge: ${content.knowledgeRating}/5\nProfessionalism: ${content.professionalismRating}/5\nResponsiveness: ${content.responsivenessRating}/5\nOverall: ${content.overallRating}/5\n\nComments: ${content.additionalComments}\nWritten Feedback: ${content.writtenFeedback}\n\nSignature: ${content.hasSignature ? 'Yes' : 'No'}\nStamp: ${content.hasStamp ? 'Yes' : 'No'}`;
         }
         
         const blob = new Blob([textContent], { type: 'application/msword' });
@@ -180,7 +184,7 @@ const LOC = () => {
         link.click();
       } else {
         const canvas = await html2canvas(targetRef.current, {
-          scale: 3,
+          scale: 4,
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
@@ -188,7 +192,7 @@ const LOC = () => {
           scrollY: 0,
           width: targetRef.current.scrollWidth,
           height: targetRef.current.scrollHeight,
-          windowWidth: targetRef.current.scrollWidth,
+          windowWidth: 1200,
           windowHeight: targetRef.current.scrollHeight
         });
 
@@ -199,17 +203,32 @@ const LOC = () => {
             format: 'a4'
           });
           
-          const imgData = canvas.toDataURL('image/png');
-          const imgWidth = 210;
+          const imgData = canvas.toDataURL('image/png', 1.0);
+          const pageWidth = 210;
+          const pageHeight = 297;
+          const margin = 10;
+          
+          const imgWidth = pageWidth - (2 * margin);
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
           
-          // If content is taller than A4, fit it to A4 height
-          if (imgHeight > 297) {
-            const scaledHeight = 297;
-            const scaledWidth = (canvas.width * scaledHeight) / canvas.height;
-            pdf.addImage(imgData, 'PNG', (210 - scaledWidth) / 2, 0, scaledWidth, scaledHeight);
+          if (imgHeight <= pageHeight - (2 * margin)) {
+            pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
           } else {
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            const pageContentHeight = pageHeight - (2 * margin);
+            const totalPages = Math.ceil(imgHeight / pageContentHeight);
+            
+            for (let page = 0; page < totalPages; page++) {
+              if (page > 0) {
+                pdf.addPage();
+              }
+              
+              const yOffset = -page * pageContentHeight;
+              pdf.addImage(imgData, 'PNG', margin, margin + yOffset, imgWidth, imgHeight);
+              
+              pdf.setFontSize(10);
+              pdf.setTextColor(100);
+              pdf.text(`Page ${page + 1} of ${totalPages}`, pageWidth - 30, pageHeight - 5);
+            }
           }
           
           pdf.save(`UNCIF_${type}_${new Date().getTime()}.pdf`);
@@ -221,12 +240,89 @@ const LOC = () => {
         }
       }
       
-      console.log(`${type} document downloaded successfully as ${format.toUpperCase()}`);
+      toast({
+        title: "Download Successful",
+        description: `${type} document downloaded successfully as ${format.toUpperCase()}`,
+      });
     } catch (error) {
       console.error('Download failed:', error);
-      alert('Download failed. Please try again.');
+      toast({
+        title: "Download Failed",
+        description: "Please try again or contact support.",
+        variant: "destructive",
+      });
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleEmailSubmit = async (type: 'clearance' | 'response' | 'rating') => {
+    setIsSending(true);
+    
+    try {
+      let emailContent = '';
+      let subject = '';
+      
+      if (type === 'rating') {
+        const content = generateRatingContent();
+        subject = `UNCIF Representative Rating - ${content.representativeName}`;
+        emailContent = `Dear UNCIF Team,
+
+Please find below the representative rating form submitted by ${content.frontlinerName}:
+
+REPRESENTATIVE INFORMATION:
+- Name: ${content.representativeName}
+- ID: ${content.representativeId}
+- Department: ${content.department}
+- Meeting Date: ${content.meetingDate}
+
+EVALUATOR INFORMATION:
+- Name: ${content.frontlinerName}
+- Title: ${content.frontlinerTitle}
+- Organization: ${content.frontlinerOrganization}
+
+PERFORMANCE RATINGS:
+- Communication: ${content.communicationRating}/5 stars
+- Knowledge: ${content.knowledgeRating}/5 stars
+- Professionalism: ${content.professionalismRating}/5 stars
+- Responsiveness: ${content.responsivenessRating}/5 stars
+- Overall Rating: ${content.overallRating}/5 stars
+
+ADDITIONAL COMMENTS:
+${content.additionalComments}
+
+WRITTEN FEEDBACK:
+${content.writtenFeedback}
+
+AUTHENTICATION:
+- Digital Signature: ${content.hasSignature ? 'Yes - ' + content.signatureName : 'No'}
+- Official Stamp: ${content.hasStamp ? 'Yes - ' + content.stampType : 'No'}
+
+Submitted on: ${content.currentDate}
+
+Best regards,
+${content.frontlinerName}
+${content.frontlinerOrganization}`;
+      }
+      
+      const mailtoLink = `mailto:info@uniford.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailContent)}`;
+      
+      window.location.href = mailtoLink;
+      
+      toast({
+        title: "Email Prepared",
+        description: "Default email client opened with pre-filled content. Please send the email.",
+      });
+      
+    } catch (error) {
+      console.error('Email preparation failed:', error);
+      toast({
+        title: "Email Failed",
+        description: "Could not prepare email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -245,20 +341,24 @@ const LOC = () => {
   );
 
   const StarRating = ({ rating, onRatingChange, label }: { rating: number, onRatingChange: (rating: number) => void, label: string }) => (
-    <div className="flex items-center space-x-2">
-      <Label className="w-32 text-sm font-semibold text-orange-900">{label}:</Label>
-      <div className="flex space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`w-6 h-6 cursor-pointer transition-colors ${
-              star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-            }`}
-            onClick={() => onRatingChange(star)}
-          />
-        ))}
+    <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 p-4 bg-white rounded-lg border border-orange-200 hover:border-orange-300 transition-colors">
+      <Label className="text-sm font-semibold text-orange-900 min-w-[120px]">{label}:</Label>
+      <div className="flex items-center space-x-2">
+        <div className="flex space-x-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              className={`w-7 h-7 cursor-pointer transition-all duration-200 hover:scale-110 ${
+                star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-yellow-200'
+              }`}
+              onClick={() => onRatingChange(star)}
+            />
+          ))}
+        </div>
+        <span className="text-sm font-medium text-orange-700 bg-orange-50 px-2 py-1 rounded">
+          {rating}/5
+        </span>
       </div>
-      <span className="text-sm text-gray-600">({rating}/5)</span>
     </div>
   );
 
@@ -277,35 +377,38 @@ const LOC = () => {
 
       <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-900">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 text-white py-12 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 text-white py-8 sm:py-12 relative overflow-hidden">
           <div className="absolute inset-0 bg-black/20"></div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div className="flex items-center justify-center mb-6">
-              <UShapeLogo size={56} />
-              <h1 className="text-4xl md:text-5xl font-bold ml-4" style={{ fontFamily: 'serif' }}>
+            <div className="flex flex-col sm:flex-row items-center justify-center mb-4 sm:mb-6">
+              <UShapeLogo size={48} />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4 sm:mt-0 sm:ml-4" style={{ fontFamily: 'serif' }}>
                 Letter of Clearance
               </h1>
             </div>
-            <p className="text-lg text-emerald-100">
+            <p className="text-base sm:text-lg text-emerald-100">
               Professional Documentation & Response Capture System
             </p>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="clearance" className="flex items-center space-x-2">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6 sm:mb-8 h-auto sm:h-10">
+              <TabsTrigger value="clearance" className="flex items-center justify-center space-x-2 py-3 sm:py-2 text-xs sm:text-sm">
                 <FileCheck className="w-4 h-4" />
-                <span>Letter of Clearance</span>
+                <span className="hidden sm:inline">Letter of Clearance</span>
+                <span className="sm:hidden">Clearance</span>
               </TabsTrigger>
-              <TabsTrigger value="response" className="flex items-center space-x-2">
+              <TabsTrigger value="response" className="flex items-center justify-center space-x-2 py-3 sm:py-2 text-xs sm:text-sm">
                 <ClipboardCheck className="w-4 h-4" />
-                <span>Frontliner Response</span>
+                <span className="hidden sm:inline">Frontliner Response</span>
+                <span className="sm:hidden">Response</span>
               </TabsTrigger>
-              <TabsTrigger value="rating" className="flex items-center space-x-2">
+              <TabsTrigger value="rating" className="flex items-center justify-center space-x-2 py-3 sm:py-2 text-xs sm:text-sm">
                 <Award className="w-4 h-4" />
-                <span>Representative Rating</span>
+                <span className="hidden sm:inline">Representative Rating</span>
+                <span className="sm:hidden">Rating</span>
               </TabsTrigger>
             </TabsList>
 
@@ -737,113 +840,127 @@ const LOC = () => {
               </div>
             </TabsContent>
 
-            {/* Rating Tab */}
+            {/* Enhanced Rating Tab */}
             <TabsContent value="rating">
-              <div className="grid lg:grid-cols-2 gap-8">
-                {/* Rating Form */}
+              <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+                {/* Enhanced Rating Form */}
                 <Card className="border-2 border-orange-400 shadow-2xl bg-gradient-to-br from-orange-50 to-amber-50">
-                  <CardHeader className="bg-gradient-to-r from-orange-800 to-amber-800 text-white rounded-t-lg">
-                    <CardTitle className="text-xl flex items-center">
-                      <Award className="w-6 h-6 mr-3" />
-                      Rating Details
+                  <CardHeader className="bg-gradient-to-r from-orange-700 to-amber-700 text-white rounded-t-lg p-4 sm:p-6">
+                    <CardTitle className="text-lg sm:text-xl flex items-center">
+                      <Award className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                      Representative Rating Form
                     </CardTitle>
+                    <p className="text-orange-100 text-sm">Professional evaluation and feedback system</p>
                   </CardHeader>
-                  <CardContent className="p-6 space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="frontlinerName" className="font-semibold text-orange-900">Frontliner Name *</Label>
-                        <Input
-                          id="frontlinerName"
-                          value={ratingData.frontlinerName}
-                          onChange={(e) => handleRatingInputChange('frontlinerName', e.target.value)}
-                          placeholder="Your name"
-                          className="border-2 border-orange-300 focus:border-orange-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="frontlinerTitle" className="font-semibold text-orange-900">Your Title</Label>
-                        <Input
-                          id="frontlinerTitle"
-                          value={ratingData.frontlinerTitle}
-                          onChange={(e) => handleRatingInputChange('frontlinerTitle', e.target.value)}
-                          placeholder="Your title/position"
-                          className="border-2 border-orange-300 focus:border-orange-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="frontlinerOrganization" className="font-semibold text-orange-900">Your Organization</Label>
-                      <Input
-                        id="frontlinerOrganization"
-                        value={ratingData.frontlinerOrganization}
-                        onChange={(e) => handleRatingInputChange('frontlinerOrganization', e.target.value)}
-                        placeholder="Your organization"
-                        className="border-2 border-orange-300 focus:border-orange-500"
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="representativeName" className="font-semibold text-orange-900">Representative Name *</Label>
-                        <Input
-                          id="representativeName"
-                          value={ratingData.representativeName}
-                          onChange={(e) => handleRatingInputChange('representativeName', e.target.value)}
-                          placeholder="Representative's name"
-                          className="border-2 border-orange-300 focus:border-orange-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="representativeId" className="font-semibold text-orange-900">Representative ID</Label>
-                        <Input
-                          id="representativeId"
-                          value={ratingData.representativeId}
-                          onChange={(e) => handleRatingInputChange('representativeId', e.target.value)}
-                          placeholder="ID or Badge Number"
-                          className="border-2 border-orange-300 focus:border-orange-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="department" className="font-semibold text-orange-900">Department</Label>
-                        <Input
-                          id="department"
-                          value={ratingData.department}
-                          onChange={(e) => handleRatingInputChange('department', e.target.value)}
-                          placeholder="Representative's department"
-                          className="border-2 border-orange-300 focus:border-orange-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="meetingDate" className="font-semibold text-orange-900">Meeting Date</Label>
-                        <Input
-                          id="meetingDate"
-                          type="date"
-                          value={ratingData.meetingDate}
-                          onChange={(e) => handleRatingInputChange('meetingDate', e.target.value)}
-                          className="border-2 border-orange-300 focus:border-orange-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-amber-50 p-6 rounded-lg border-2 border-amber-200">
-                      <h3 className="text-lg font-bold text-orange-900 mb-4">Rate the Representative</h3>
+                  <CardContent className="p-4 sm:p-6 space-y-6">
+                    {/* Evaluator Information */}
+                    <div className="bg-gradient-to-r from-amber-100 to-orange-100 p-4 rounded-lg border-2 border-amber-200">
+                      <h3 className="text-lg font-bold text-orange-900 mb-4">Evaluator Information</h3>
                       <div className="space-y-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="frontlinerName" className="font-semibold text-orange-900">Your Name *</Label>
+                            <Input
+                              id="frontlinerName"
+                              value={ratingData.frontlinerName}
+                              onChange={(e) => handleRatingInputChange('frontlinerName', e.target.value)}
+                              placeholder="Enter your full name"
+                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="frontlinerTitle" className="font-semibold text-orange-900">Your Position</Label>
+                            <Input
+                              id="frontlinerTitle"
+                              value={ratingData.frontlinerTitle}
+                              onChange={(e) => handleRatingInputChange('frontlinerTitle', e.target.value)}
+                              placeholder="Your job title"
+                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="frontlinerOrganization" className="font-semibold text-orange-900">Your Organization</Label>
+                          <Input
+                            id="frontlinerOrganization"
+                            value={ratingData.frontlinerOrganization}
+                            onChange={(e) => handleRatingInputChange('frontlinerOrganization', e.target.value)}
+                            placeholder="Organization/Company name"
+                            className="border-2 border-orange-300 focus:border-orange-500 bg-white"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Representative Information */}
+                    <div className="bg-gradient-to-r from-orange-100 to-amber-100 p-4 rounded-lg border-2 border-orange-200">
+                      <h3 className="text-lg font-bold text-orange-900 mb-4">Representative Information</h3>
+                      <div className="space-y-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="representativeName" className="font-semibold text-orange-900">Representative Name *</Label>
+                            <Input
+                              id="representativeName"
+                              value={ratingData.representativeName}
+                              onChange={(e) => handleRatingInputChange('representativeName', e.target.value)}
+                              placeholder="UNCIF representative name"
+                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="representativeId" className="font-semibold text-orange-900">Representative ID</Label>
+                            <Input
+                              id="representativeId"
+                              value={ratingData.representativeId}
+                              onChange={(e) => handleRatingInputChange('representativeId', e.target.value)}
+                              placeholder="ID or Badge Number"
+                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="department" className="font-semibold text-orange-900">Department</Label>
+                            <Input
+                              id="department"
+                              value={ratingData.department}
+                              onChange={(e) => handleRatingInputChange('department', e.target.value)}
+                              placeholder="Representative's department"
+                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="meetingDate" className="font-semibold text-orange-900">Meeting Date</Label>
+                            <Input
+                              id="meetingDate"
+                              type="date"
+                              value={ratingData.meetingDate}
+                              onChange={(e) => handleRatingInputChange('meetingDate', e.target.value)}
+                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Performance Ratings */}
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-lg border-2 border-amber-300">
+                      <h3 className="text-lg font-bold text-orange-900 mb-6 text-center">Performance Evaluation</h3>
+                      <div className="space-y-3">
                         <StarRating
                           rating={ratingData.communicationRating}
                           onRatingChange={(rating) => handleRatingInputChange('communicationRating', rating)}
-                          label="Communication"
+                          label="Communication Skills"
                         />
                         <StarRating
                           rating={ratingData.knowledgeRating}
                           onRatingChange={(rating) => handleRatingInputChange('knowledgeRating', rating)}
-                          label="Knowledge"
+                          label="Knowledge & Expertise"
                         />
                         <StarRating
                           rating={ratingData.professionalismRating}
@@ -855,27 +972,44 @@ const LOC = () => {
                           onRatingChange={(rating) => handleRatingInputChange('responsivenessRating', rating)}
                           label="Responsiveness"
                         />
-                        <StarRating
-                          rating={ratingData.overallRating}
-                          onRatingChange={(rating) => handleRatingInputChange('overallRating', rating)}
-                          label="Overall Rating"
+                        <div className="bg-gradient-to-r from-yellow-100 to-amber-100 p-4 rounded-lg border-2 border-yellow-300 mt-4">
+                          <StarRating
+                            rating={ratingData.overallRating}
+                            onRatingChange={(rating) => handleRatingInputChange('overallRating', rating)}
+                            label="Overall Rating"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Feedback Sections */}
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="additionalComments" className="font-semibold text-orange-900">Quick Comments</Label>
+                        <Textarea
+                          id="additionalComments"
+                          value={ratingData.additionalComments}
+                          onChange={(e) => handleRatingInputChange('additionalComments', e.target.value)}
+                          placeholder="Brief comments about the representative's performance..."
+                          className="border-2 border-orange-300 focus:border-orange-500 min-h-[80px] bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="writtenFeedback" className="font-semibold text-orange-900">Detailed Written Feedback</Label>
+                        <Textarea
+                          id="writtenFeedback"
+                          value={ratingData.writtenFeedback}
+                          onChange={(e) => handleRatingInputChange('writtenFeedback', e.target.value)}
+                          placeholder="Provide detailed feedback about your meeting with the UNCIF representative. Include specific examples of their performance, areas of strength, and suggestions for improvement..."
+                          className="border-2 border-orange-300 focus:border-orange-500 min-h-[120px] bg-white"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="additionalComments" className="font-semibold text-orange-900">Additional Comments</Label>
-                      <Textarea
-                        id="additionalComments"
-                        value={ratingData.additionalComments}
-                        onChange={(e) => handleRatingInputChange('additionalComments', e.target.value)}
-                        placeholder="Any additional feedback or comments..."
-                        className="border-2 border-orange-300 focus:border-orange-500 min-h-[80px]"
-                      />
-                    </div>
-
+                    {/* Authentication Options */}
                     <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
-                      <h4 className="font-semibold text-orange-900 mb-3">Signature & Stamp Options</h4>
+                      <h4 className="font-semibold text-orange-900 mb-3">Authentication Options</h4>
                       <div className="space-y-3">
                         <div className="flex items-center space-x-3">
                           <input
@@ -883,16 +1017,16 @@ const LOC = () => {
                             id="hasSignature"
                             checked={ratingData.hasSignature}
                             onChange={(e) => handleRatingInputChange('hasSignature', e.target.checked)}
-                            className="rounded border-orange-300"
+                            className="w-4 h-4 text-orange-600 bg-white border-2 border-orange-300 rounded focus:ring-orange-500"
                           />
-                          <Label htmlFor="hasSignature" className="text-orange-900">Include Digital Signature</Label>
+                          <Label htmlFor="hasSignature" className="text-orange-900 font-medium">Include Digital Signature</Label>
                         </div>
                         {ratingData.hasSignature && (
                           <Input
                             value={ratingData.signatureName}
                             onChange={(e) => handleRatingInputChange('signatureName', e.target.value)}
-                            placeholder="Name for signature"
-                            className="border-2 border-orange-300 focus:border-orange-500"
+                            placeholder="Full name for signature"
+                            className="border-2 border-orange-300 focus:border-orange-500 bg-white ml-7"
                           />
                         )}
                         
@@ -902,13 +1036,13 @@ const LOC = () => {
                             id="hasStamp"
                             checked={ratingData.hasStamp}
                             onChange={(e) => handleRatingInputChange('hasStamp', e.target.checked)}
-                            className="rounded border-orange-300"
+                            className="w-4 h-4 text-orange-600 bg-white border-2 border-orange-300 rounded focus:ring-orange-500"
                           />
-                          <Label htmlFor="hasStamp" className="text-orange-900">Include Official Stamp</Label>
+                          <Label htmlFor="hasStamp" className="text-orange-900 font-medium">Include Official Stamp</Label>
                         </div>
                         {ratingData.hasStamp && (
                           <Select value={ratingData.stampType} onValueChange={(value) => handleRatingInputChange('stampType', value)}>
-                            <SelectTrigger className="border-2 border-orange-300 focus:border-orange-500">
+                            <SelectTrigger className="border-2 border-orange-300 focus:border-orange-500 bg-white ml-7">
                               <SelectValue placeholder="Select stamp type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -920,15 +1054,43 @@ const LOC = () => {
                         )}
                       </div>
                     </div>
+
+                    {/* Email Submission */}
+                    <div className="bg-gradient-to-r from-emerald-100 to-teal-100 p-4 rounded-lg border-2 border-emerald-300">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-emerald-900">Submit via Email</h4>
+                        <Mail className="w-5 h-5 text-emerald-700" />
+                      </div>
+                      <p className="text-sm text-emerald-800 mb-4">
+                        Click below to submit this rating form directly to UNCIF headquarters via email.
+                      </p>
+                      <Button
+                        onClick={() => handleEmailSubmit('rating')}
+                        disabled={isSending || !ratingData.frontlinerName || !ratingData.representativeName}
+                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200"
+                      >
+                        {isSending ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Preparing Email...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-2" />
+                            Submit Rating via Email
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 
-                {/* Rating Preview */}
+                {/* Enhanced Rating Preview */}
                 <Card className="border-2 border-orange-600 shadow-2xl">
-                  <CardHeader className="bg-gradient-to-r from-orange-600 to-amber-500 text-white rounded-t-lg">
-                    <CardTitle className="text-xl flex items-center">
-                      <Award className="w-6 h-6 mr-3" />
-                      Preview
+                  <CardHeader className="bg-gradient-to-r from-orange-600 to-amber-500 text-white rounded-t-lg p-4 sm:p-6">
+                    <CardTitle className="text-lg sm:text-xl flex items-center">
+                      <Award className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                      Document Preview
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
@@ -936,7 +1098,7 @@ const LOC = () => {
                       <div 
                         ref={ratingRef}
                         className="p-8 bg-gradient-to-br from-white to-gray-50"
-                        style={{ fontFamily: '"Times New Roman", serif' }}
+                        style={{ fontFamily: '"Times New Roman", serif', minWidth: '800px' }}
                       >
                         <div className="border-8 border-double border-orange-700 rounded-lg p-8 bg-gradient-to-br from-orange-50 to-amber-50 relative">
                           {/* Decorative corners */}
@@ -985,14 +1147,14 @@ const LOC = () => {
                             <div className="bg-gradient-to-r from-amber-100 to-orange-100 p-6 rounded-lg border-4 border-amber-300">
                               <h3 className="text-lg font-bold text-orange-900 mb-6 text-center">PERFORMANCE RATINGS</h3>
                               <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                   <div className="flex justify-between items-center">
                                     <span className="font-semibold">Communication:</span>
                                     <div className="flex space-x-1">
                                       {[1, 2, 3, 4, 5].map((star) => (
                                         <Star
                                           key={star}
-                                          className={`w-4 h-4 ${
+                                          className={`w-5 h-5 ${
                                             star <= ratingContent.communicationRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
                                           }`}
                                         />
@@ -1005,7 +1167,7 @@ const LOC = () => {
                                       {[1, 2, 3, 4, 5].map((star) => (
                                         <Star
                                           key={star}
-                                          className={`w-4 h-4 ${
+                                          className={`w-5 h-5 ${
                                             star <= ratingContent.knowledgeRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
                                           }`}
                                         />
@@ -1018,49 +1180,63 @@ const LOC = () => {
                                       {[1, 2, 3, 4, 5].map((star) => (
                                         <Star
                                           key={star}
-                                          className={`w-4 h-4 ${
+                                          className={`w-5 h-5 ${
                                             star <= ratingContent.professionalismRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
                                           }`}
                                         />
                                       ))}
                                     </div>
                                   </div>
-                                </div>
-                                <div className="space-y-3">
                                   <div className="flex justify-between items-center">
                                     <span className="font-semibold">Responsiveness:</span>
                                     <div className="flex space-x-1">
                                       {[1, 2, 3, 4, 5].map((star) => (
                                         <Star
                                           key={star}
-                                          className={`w-4 h-4 ${
+                                          className={`w-5 h-5 ${
                                             star <= ratingContent.responsivenessRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
                                           }`}
                                         />
                                       ))}
                                     </div>
                                   </div>
-                                  <div className="flex justify-between items-center border-t-2 border-orange-300 pt-2">
-                                    <span className="font-bold text-lg">Overall Rating:</span>
-                                    <div className="flex space-x-1">
+                                </div>
+                                <div className="flex items-center justify-center">
+                                  <div className="text-center p-6 bg-gradient-to-r from-yellow-100 to-amber-100 rounded-lg border-4 border-yellow-300">
+                                    <div className="text-lg font-bold text-orange-900 mb-2">Overall Rating</div>
+                                    <div className="flex justify-center space-x-1 mb-2">
                                       {[1, 2, 3, 4, 5].map((star) => (
                                         <Star
                                           key={star}
-                                          className={`w-5 h-5 ${
+                                          className={`w-8 h-8 ${
                                             star <= ratingContent.overallRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
                                           }`}
                                         />
                                       ))}
                                     </div>
+                                    <div className="text-2xl font-bold text-orange-900">{ratingContent.overallRating}/5</div>
                                   </div>
                                 </div>
                               </div>
                             </div>
 
-                            {ratingContent.additionalComments !== '[No additional comments]' && (
+                            {(ratingContent.additionalComments !== '[No additional comments]' || ratingContent.writtenFeedback !== '[No written feedback provided]') && (
                               <div className="bg-white p-6 rounded-lg border-2 border-orange-200">
-                                <h3 className="text-lg font-bold text-orange-900 mb-4">Additional Comments</h3>
-                                <p className="text-orange-800 leading-relaxed">{ratingContent.additionalComments}</p>
+                                <h3 className="text-lg font-bold text-orange-900 mb-4">Feedback & Comments</h3>
+                                <div className="space-y-4">
+                                  {ratingContent.additionalComments !== '[No additional comments]' && (
+                                    <div>
+                                      <h4 className="font-semibold text-orange-800 mb-2">Quick Comments:</h4>
+                                      <p className="text-orange-700 leading-relaxed">{ratingContent.additionalComments}</p>
+                                    </div>
+                                  )}
+                                  {ratingContent.writtenFeedback !== '[No written feedback provided]' && (
+                                    <div>
+                                      <h4 className="font-semibold text-orange-800 mb-2">Detailed Written Feedback:</h4>
+                                      <p className="text-orange-700 leading-relaxed">{ratingContent.writtenFeedback}</p>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             )}
                           </div>
@@ -1072,7 +1248,7 @@ const LOC = () => {
                                 <p className="text-sm text-gray-600 mb-4">Submitted: {ratingContent.currentDate}</p>
                                 {ratingContent.hasSignature && (
                                   <div className="mb-4">
-                                    <div className="text-lg font-bold text-orange-900 border-b-2 border-orange-300 pb-2 mb-2">
+                                    <div className="text-lg font-bold text-orange-900 border-b-2 border-orange-300 pb-2 mb-2 w-48">
                                       {ratingContent.signatureName}
                                     </div>
                                     <p className="text-xs text-gray-500">Digital Signature</p>
@@ -1083,11 +1259,11 @@ const LOC = () => {
                               <div className="text-center">
                                 <UShapeLogo size={40} />
                                 {ratingContent.hasStamp && (
-                                  <div className="mt-2 p-2 border-4 border-orange-600 rounded-full bg-orange-100">
+                                  <div className="mt-2 p-3 border-4 border-orange-600 rounded-full bg-orange-100">
                                     <p className="text-xs font-bold text-orange-800">{ratingContent.stampType}</p>
                                   </div>
                                 )}
-                                <p className="text-xs text-gray-500 mt-2">Rating Form</p>
+                                <p className="text-xs text-gray-500 mt-2">Official Rating Form</p>
                               </div>
                             </div>
                           </div>
@@ -1100,28 +1276,58 @@ const LOC = () => {
             </TabsContent>
           </Tabs>
 
-          {/* Action Buttons */}
-          <Card className="mt-8 border-2 border-emerald-400 shadow-2xl bg-gradient-to-r from-emerald-50 to-teal-50">
-            <CardContent className="p-6">
+          {/* Enhanced Action Buttons */}
+          <Card className="mt-6 sm:mt-8 border-2 border-emerald-400 shadow-2xl bg-gradient-to-r from-emerald-50 to-teal-50">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col lg:flex-row gap-6">
                 <div className="flex-1">
                   <h3 className="text-lg font-bold mb-4 text-emerald-900 flex items-center">
                     <Download className="w-5 h-5 mr-2" />
-                    Download {activeTab === 'clearance' ? 'Clearance' : activeTab === 'response' ? 'Response' : 'Rating'}
+                    Download {activeTab === 'clearance' ? 'Clearance' : activeTab === 'response' ? 'Response' : 'Rating'} Document
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {['pdf', 'png', 'jpg', 'word'].map((format) => (
                       <Button
                         key={format}
                         onClick={() => handleDownload(format as any, activeTab as any)}
                         disabled={isDownloading}
-                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold"
+                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-2 px-3 text-sm"
                       >
-                        {format.toUpperCase()}
+                        {isDownloading ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ) : (
+                          format.toUpperCase()
+                        )}
                       </Button>
                     ))}
                   </div>
                 </div>
+
+                {activeTab === 'rating' && (
+                  <div className="lg:w-80">
+                    <h3 className="text-lg font-bold mb-4 text-emerald-900 flex items-center">
+                      <Mail className="w-5 h-5 mr-2" />
+                      Quick Email Submit
+                    </h3>
+                    <Button
+                      onClick={() => handleEmailSubmit('rating')}
+                      disabled={isSending || !ratingData.frontlinerName || !ratingData.representativeName}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4"
+                    >
+                      {isSending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Preparing...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          Email to UNCIF
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
