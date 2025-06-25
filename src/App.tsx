@@ -22,6 +22,7 @@ import StampSignature from "./pages/StampSignature";
 import Donation from "./pages/Donation";
 import PolicyAgreement from "./pages/PolicyAgreement";
 import LOC from "./pages/LOC";
+import Office from "./pages/Office";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="/donation" element={<Donation />} />
                 <Route path="/policy-agreement" element={<PolicyAgreement />} />
                 <Route path="/loc" element={<LOC />} />
+                <Route path="/office" element={<Office />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
