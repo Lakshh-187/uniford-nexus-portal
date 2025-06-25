@@ -105,11 +105,15 @@ const LOC = () => {
     
     try {
       if (format === 'word') {
-        // For Word format, create text content
-        const content = type === 'clearance' ? generateClearanceContent() : generateResponseContent();
-        const textContent = type === 'clearance' 
-          ? `${content.title}\n${content.subtitle}\n\nRepresentative: ${content.representativeName}\nID: ${content.representativeId}\nDepartment: ${content.department}\n\nFrontliner: ${content.frontlinerName}\nOrganization: ${content.frontlinerOrganization}\n\nMeeting Details:\nDate: ${content.meetingDate}\nLocation: ${content.meetingLocation}\n\nCertification:\n${content.customNote}\n\nDate: ${content.currentDate}`
-          : `${content.title}\n${content.subtitle}\n\nFrontliner Details:\nName: ${content.frontlinerName}\nTitle: ${content.frontlinerTitle}\nOrganization: ${content.frontlinerOrganization}\nContact: ${content.contactInfo}\n\nEngagement Details:\nInterest Level: ${content.interestLevel}\nQuestions: ${content.specificQuestions}\nFollow-up: ${content.followUpRequired}\nComments: ${content.additionalComments}\n\nRepresentative: ${content.representativeName}\nDate: ${content.meetingDate}`;
+        // For Word format, create text content based on document type
+        let textContent = '';
+        if (type === 'clearance') {
+          const content = generateClearanceContent();
+          textContent = `${content.title}\n${content.subtitle}\n\nRepresentative: ${content.representativeName}\nID: ${content.representativeId}\nDepartment: ${content.department}\n\nFrontliner: ${content.frontlinerName}\nOrganization: ${content.frontlinerOrganization}\n\nMeeting Details:\nDate: ${content.meetingDate}\nLocation: ${content.meetingLocation}\n\nCertification:\n${content.customNote}\n\nDate: ${content.currentDate}`;
+        } else {
+          const content = generateResponseContent();
+          textContent = `${content.title}\n${content.subtitle}\n\nFrontliner Details:\nName: ${content.frontlinerName}\nTitle: ${content.frontlinerTitle}\nOrganization: ${content.frontlinerOrganization}\nContact: ${content.contactInfo}\n\nEngagement Details:\nInterest Level: ${content.interestLevel}\nQuestions: ${content.specificQuestions}\nFollow-up: ${content.followUpRequired}\nComments: ${content.additionalComments}\n\nRepresentative: ${content.representativeName}\nDate: ${content.meetingDate}`;
+        }
         
         const blob = new Blob([textContent], { type: 'application/msword' });
         const link = document.createElement('a');
