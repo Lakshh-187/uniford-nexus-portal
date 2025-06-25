@@ -1,324 +1,203 @@
-import React, { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Share2, Mail, MessageCircle, Link, FileCheck, UserCheck, ClipboardCheck, Award, Star, Send } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import SEO from '@/components/SEO';
-import html2canvas from 'html2canvas';
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "@/hooks/use-toast";
+import { FileText, Download, Mail, Star, MessageSquare } from "lucide-react";
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import SEO from "@/components/SEO";
+
+interface FormData {
+  applicantName: string;
+  applicationDate: string;
+  clearanceType: string;
+  purpose: string;
+  additionalNotes: string;
+  signature: string;
+  stamp: string;
+}
+
+interface FrontlinerFormData {
+  frontlinerName: string;
+  representativeName: string;
+  meetingDate: string;
+  meetingType: string;
+  responseType: string;
+  responseDetails: string;
+  recommendations: string;
+  signature: string;
+  stamp: string;
+}
+
+interface RatingFormData {
+  representativeName: string;
+  ratingDate: string;
+  punctuality: string;
+  communication: string;
+  professionalism: string;
+  problemSolving: string;
+  overallSatisfaction: string;
+  improvements: string;
+  additionalComments: string;
+  signature: string;
+  stamp: string;
+}
+
+interface WrittenFeedbackData {
+  frontlinerName: string;
+  representativeName: string;
+  meetingDate: string;
+  meetingPurpose: string;
+  feedbackType: string;
+  detailedFeedback: string;
+  suggestions: string;
+  followUpRequired: boolean;
+  priority: string;
+  signature: string;
+  stamp: string;
+}
 
 const LOC = () => {
-  const [clearanceData, setClearanceData] = useState({
-    representativeName: '',
-    representativeId: '',
-    department: '',
+  const [formData, setFormData] = useState<FormData>({
+    applicantName: '',
+    applicationDate: '',
+    clearanceType: '',
+    purpose: '',
+    additionalNotes: '',
+    signature: '',
+    stamp: ''
+  });
+
+  const [frontlinerData, setFrontlinerData] = useState<FrontlinerFormData>({
     frontlinerName: '',
-    frontlinerOrganization: '',
+    representativeName: '',
     meetingDate: '',
-    meetingLocation: '',
-    customNote: '',
-    documentType: 'clearance'
+    meetingType: '',
+    responseType: '',
+    responseDetails: '',
+    recommendations: '',
+    signature: '',
+    stamp: ''
   });
 
-  const [responseData, setResponseData] = useState({
-    frontlinerName: '',
-    frontlinerTitle: '',
-    frontlinerOrganization: '',
-    contactInfo: '',
-    interestLevel: '',
-    specificQuestions: '',
-    followUpRequired: '',
+  const [ratingData, setRatingData] = useState<RatingFormData>({
+    representativeName: '',
+    ratingDate: '',
+    punctuality: '',
+    communication: '',
+    professionalism: '',
+    problemSolving: '',
+    overallSatisfaction: '',
+    improvements: '',
     additionalComments: '',
-    representativeName: '',
-    meetingDate: ''
+    signature: '',
+    stamp: ''
   });
 
-  const [ratingData, setRatingData] = useState({
+  const [feedbackData, setFeedbackData] = useState<WrittenFeedbackData>({
     frontlinerName: '',
-    frontlinerTitle: '',
-    frontlinerOrganization: '',
     representativeName: '',
-    representativeId: '',
-    department: '',
     meetingDate: '',
-    communicationRating: 0,
-    knowledgeRating: 0,
-    professionalismRating: 0,
-    responsivenessRating: 0,
-    overallRating: 0,
-    additionalComments: '',
-    writtenFeedback: '',
-    hasSignature: false,
-    hasStamp: false,
-    signatureName: '',
-    stampType: ''
+    meetingPurpose: '',
+    feedbackType: '',
+    detailedFeedback: '',
+    suggestions: '',
+    followUpRequired: false,
+    priority: '',
+    signature: '',
+    stamp: ''
   });
 
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [activeTab, setActiveTab] = useState('clearance');
-  const clearanceRef = useRef<HTMLDivElement>(null);
-  const responseRef = useRef<HTMLDivElement>(null);
-  const ratingRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
 
-  const handleClearanceInputChange = (field: string, value: string) => {
-    setClearanceData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleResponseInputChange = (field: string, value: string) => {
-    setResponseData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleRatingInputChange = (field: string, value: string | number | boolean) => {
-    setRatingData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const generateClearanceContent = () => {
-    const currentDate = new Date().toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-
-    return {
-      title: 'LETTER OF CLEARANCE',
-      subtitle: 'UNCIF Representative Certification',
-      representativeName: clearanceData.representativeName || '[Representative Name]',
-      representativeId: clearanceData.representativeId || '[Representative ID]',
-      department: clearanceData.department || '[Department]',
-      frontlinerName: clearanceData.frontlinerName || '[Frontliner Name]',
-      frontlinerOrganization: clearanceData.frontlinerOrganization || '[Organization]',
-      meetingDate: clearanceData.meetingDate || currentDate,
-      meetingLocation: clearanceData.meetingLocation || '[Meeting Location]',
-      customNote: clearanceData.customNote || 'All standard information has been shared and questions answered satisfactorily.',
-      currentDate: currentDate
-    };
-  };
-
-  const generateResponseContent = () => {
-    const currentDate = new Date().toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-
-    return {
-      title: 'FRONTLINER RESPONSE FORM',
-      subtitle: 'UNCIF Engagement Documentation',
-      frontlinerName: responseData.frontlinerName || '[Frontliner Name]',
-      frontlinerTitle: responseData.frontlinerTitle || '[Title]',
-      frontlinerOrganization: responseData.frontlinerOrganization || '[Organization]',
-      contactInfo: responseData.contactInfo || '[Contact Information]',
-      interestLevel: responseData.interestLevel || '[Interest Level]',
-      specificQuestions: responseData.specificQuestions || '[Questions Asked]',
-      followUpRequired: responseData.followUpRequired || '[Follow-up Requirements]',
-      additionalComments: responseData.additionalComments || '[Additional Comments]',
-      representativeName: responseData.representativeName || '[Representative Name]',
-      meetingDate: responseData.meetingDate || currentDate,
-      currentDate: currentDate
-    };
-  };
-
-  const generateRatingContent = () => {
-    const currentDate = new Date().toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-
-    return {
-      title: 'REPRESENTATIVE RATING FORM',
-      subtitle: 'Frontliner Evaluation & Feedback',
-      frontlinerName: ratingData.frontlinerName || '[Frontliner Name]',
-      frontlinerTitle: ratingData.frontlinerTitle || '[Title]',
-      frontlinerOrganization: ratingData.frontlinerOrganization || '[Organization]',
-      representativeName: ratingData.representativeName || '[Representative Name]',
-      representativeId: ratingData.representativeId || '[Representative ID]',
-      department: ratingData.department || '[Department]',
-      meetingDate: ratingData.meetingDate || currentDate,
-      communicationRating: ratingData.communicationRating,
-      knowledgeRating: ratingData.knowledgeRating,
-      professionalismRating: ratingData.professionalismRating,
-      responsivenessRating: ratingData.responsivenessRating,
-      overallRating: ratingData.overallRating,
-      additionalComments: ratingData.additionalComments || '[No additional comments]',
-      writtenFeedback: ratingData.writtenFeedback || '[No written feedback provided]',
-      hasSignature: ratingData.hasSignature,
-      hasStamp: ratingData.hasStamp,
-      signatureName: ratingData.signatureName || '[Signature Name]',
-      stampType: ratingData.stampType || '[Stamp Type]',
-      currentDate: currentDate
-    };
-  };
-
-  const handleDownload = async (format: 'pdf' | 'png' | 'jpg' | 'word', type: 'clearance' | 'response' | 'rating') => {
-    const targetRef = type === 'clearance' ? clearanceRef : type === 'response' ? responseRef : ratingRef;
-    if (!targetRef.current) return;
-    
-    setIsDownloading(true);
-    
+  const generatePDF = async (contentId: string, filename: string) => {
+    setIsGenerating(true);
     try {
-      if (format === 'word') {
-        let textContent = '';
-        if (type === 'clearance') {
-          const content = generateClearanceContent();
-          textContent = `${content.title}\n${content.subtitle}\n\nRepresentative: ${content.representativeName}\nID: ${content.representativeId}\nDepartment: ${content.department}\n\nFrontliner: ${content.frontlinerName}\nOrganization: ${content.frontlinerOrganization}\n\nMeeting Details:\nDate: ${content.meetingDate}\nLocation: ${content.meetingLocation}\n\nCertification:\n${content.customNote}\n\nDate: ${content.currentDate}`;
-        } else if (type === 'response') {
-          const content = generateResponseContent();
-          textContent = `${content.title}\n${content.subtitle}\n\nFrontliner Details:\nName: ${content.frontlinerName}\nTitle: ${content.frontlinerTitle}\nOrganization: ${content.frontlinerOrganization}\nContact: ${content.contactInfo}\n\nEngagement Details:\nInterest Level: ${content.interestLevel}\nQuestions: ${content.specificQuestions}\nFollow-up: ${content.followUpRequired}\nComments: ${content.additionalComments}\n\nRepresentative: ${content.representativeName}\nDate: ${content.meetingDate}`;
-        } else {
-          const content = generateRatingContent();
-          textContent = `${content.title}\n${content.subtitle}\n\nFrontliner: ${content.frontlinerName} (${content.frontlinerTitle})\nOrganization: ${content.frontlinerOrganization}\n\nRepresentative: ${content.representativeName}\nID: ${content.representativeId}\nDepartment: ${content.department}\nMeeting Date: ${content.meetingDate}\n\nRatings:\nCommunication: ${content.communicationRating}/5\nKnowledge: ${content.knowledgeRating}/5\nProfessionalism: ${content.professionalismRating}/5\nResponsiveness: ${content.responsivenessRating}/5\nOverall: ${content.overallRating}/5\n\nComments: ${content.additionalComments}\nWritten Feedback: ${content.writtenFeedback}\n\nSignature: ${content.hasSignature ? 'Yes' : 'No'}\nStamp: ${content.hasStamp ? 'Yes' : 'No'}`;
-        }
-        
-        const blob = new Blob([textContent], { type: 'application/msword' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `UNCIF_${type}_${new Date().getTime()}.doc`;
-        link.click();
-      } else {
-        const canvas = await html2canvas(targetRef.current, {
-          scale: 4,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          scrollX: 0,
-          scrollY: 0,
-          width: targetRef.current.scrollWidth,
-          height: targetRef.current.scrollHeight,
-          windowWidth: 1200,
-          windowHeight: targetRef.current.scrollHeight
-        });
-
-        if (format === 'pdf') {
-          const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-          });
-          
-          const imgData = canvas.toDataURL('image/png', 1.0);
-          const pageWidth = 210;
-          const pageHeight = 297;
-          const margin = 10;
-          
-          const imgWidth = pageWidth - (2 * margin);
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          
-          if (imgHeight <= pageHeight - (2 * margin)) {
-            pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
-          } else {
-            const pageContentHeight = pageHeight - (2 * margin);
-            const totalPages = Math.ceil(imgHeight / pageContentHeight);
-            
-            for (let page = 0; page < totalPages; page++) {
-              if (page > 0) {
-                pdf.addPage();
-              }
-              
-              const yOffset = -page * pageContentHeight;
-              pdf.addImage(imgData, 'PNG', margin, margin + yOffset, imgWidth, imgHeight);
-              
-              pdf.setFontSize(10);
-              pdf.setTextColor(100);
-              pdf.text(`Page ${page + 1} of ${totalPages}`, pageWidth - 30, pageHeight - 5);
-            }
-          }
-          
-          pdf.save(`UNCIF_${type}_${new Date().getTime()}.pdf`);
-        } else {
-          const link = document.createElement('a');
-          link.download = `UNCIF_${type}_${new Date().getTime()}.${format}`;
-          link.href = canvas.toDataURL(`image/${format}`, 1.0);
-          link.click();
-        }
+      const element = document.getElementById(contentId);
+      if (!element) {
+        throw new Error('Content element not found');
       }
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        height: element.scrollHeight,
+        width: element.scrollWidth
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
       
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      pdf.save(filename);
+
       toast({
-        title: "Download Successful",
-        description: `${type} document downloaded successfully as ${format.toUpperCase()}`,
+        title: "Success",
+        description: "PDF generated successfully",
       });
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error('Error generating PDF:', error);
       toast({
-        title: "Download Failed",
-        description: "Please try again or contact support.",
+        title: "Error",
+        description: "Failed to generate PDF",
         variant: "destructive",
       });
     } finally {
-      setIsDownloading(false);
+      setIsGenerating(false);
     }
   };
 
-  const handleEmailSubmit = async (type: 'clearance' | 'response' | 'rating') => {
+  const sendEmail = async (data: any, subject: string, contentType: string) => {
     setIsSending(true);
-    
     try {
-      let emailContent = '';
-      let subject = '';
+      // In a real application, this would call your backend API
+      const emailData = {
+        to: "info@uniford.org",
+        subject: subject,
+        body: `
+New ${contentType} submission:
+
+${JSON.stringify(data, null, 2)}
+
+Submitted on: ${new Date().toLocaleString()}
+        `
+      };
+
+      console.log('Email would be sent:', emailData);
       
-      if (type === 'rating') {
-        const content = generateRatingContent();
-        subject = `UNCIF Representative Rating - ${content.representativeName}`;
-        emailContent = `Dear UNCIF Team,
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-Please find below the representative rating form submitted by ${content.frontlinerName}:
-
-REPRESENTATIVE INFORMATION:
-- Name: ${content.representativeName}
-- ID: ${content.representativeId}
-- Department: ${content.department}
-- Meeting Date: ${content.meetingDate}
-
-EVALUATOR INFORMATION:
-- Name: ${content.frontlinerName}
-- Title: ${content.frontlinerTitle}
-- Organization: ${content.frontlinerOrganization}
-
-PERFORMANCE RATINGS:
-- Communication: ${content.communicationRating}/5 stars
-- Knowledge: ${content.knowledgeRating}/5 stars
-- Professionalism: ${content.professionalismRating}/5 stars
-- Responsiveness: ${content.responsivenessRating}/5 stars
-- Overall Rating: ${content.overallRating}/5 stars
-
-ADDITIONAL COMMENTS:
-${content.additionalComments}
-
-WRITTEN FEEDBACK:
-${content.writtenFeedback}
-
-AUTHENTICATION:
-- Digital Signature: ${content.hasSignature ? 'Yes - ' + content.signatureName : 'No'}
-- Official Stamp: ${content.hasStamp ? 'Yes - ' + content.stampType : 'No'}
-
-Submitted on: ${content.currentDate}
-
-Best regards,
-${content.frontlinerName}
-${content.frontlinerOrganization}`;
-      }
-      
-      const mailtoLink = `mailto:info@uniford.org?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailContent)}`;
-      
-      window.location.href = mailtoLink;
-      
       toast({
-        title: "Email Prepared",
-        description: "Default email client opened with pre-filled content. Please send the email.",
+        title: "Success",
+        description: `${contentType} sent to info@uniford.org successfully`,
       });
-      
     } catch (error) {
-      console.error('Email preparation failed:', error);
+      console.error('Error sending email:', error);
       toast({
-        title: "Email Failed",
-        description: "Could not prepare email. Please try again.",
+        title: "Error",
+        description: "Failed to send email",
         variant: "destructive",
       });
     } finally {
@@ -326,1014 +205,909 @@ ${content.frontlinerOrganization}`;
     }
   };
 
-  const UShapeLogo = ({ size = 40 }: { size?: number }) => (
-    <div 
-      className="font-bold text-purple-800 flex items-center justify-center border-4 border-purple-800 rounded-lg bg-gradient-to-br from-amber-100 to-yellow-100"
-      style={{ 
-        width: size, 
-        height: size, 
-        fontSize: size * 0.6,
-        fontFamily: 'serif'
-      }}
-    >
-      U
-    </div>
-  );
-
-  const StarRating = ({ rating, onRatingChange, label }: { rating: number, onRatingChange: (rating: number) => void, label: string }) => (
-    <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 p-4 bg-white rounded-lg border border-orange-200 hover:border-orange-300 transition-colors">
-      <Label className="text-sm font-semibold text-orange-900 min-w-[120px]">{label}:</Label>
-      <div className="flex items-center space-x-2">
-        <div className="flex space-x-1">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              className={`w-7 h-7 cursor-pointer transition-all duration-200 hover:scale-110 ${
-                star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-yellow-200'
-              }`}
-              onClick={() => onRatingChange(star)}
-            />
-          ))}
-        </div>
-        <span className="text-sm font-medium text-orange-700 bg-orange-50 px-2 py-1 rounded">
-          {rating}/5
+  const renderStarRating = (value: string, onChange: (value: string) => void) => {
+    return (
+      <div className="flex items-center space-x-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-6 h-6 cursor-pointer transition-colors ${
+              parseInt(value) >= star ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+            }`}
+            onClick={() => onChange(star.toString())}
+          />
+        ))}
+        <span className="ml-2 text-sm text-gray-600">
+          {value ? `${value}/5` : 'Not rated'}
         </span>
       </div>
-    </div>
-  );
-
-  const clearanceContent = generateClearanceContent();
-  const responseContent = generateResponseContent();
-  const ratingContent = generateRatingContent();
+    );
+  };
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
       <SEO 
-        title="Letter of Clearance - UNCIF Documentation"
-        description="Generate professional Letter of Clearance documents and capture frontliner responses for UNCIF representatives."
-        keywords="UNCIF LOC, letter of clearance, representative certification, frontliner response, documentation"
-        canonical="/loc"
+        title="Letter of Clearance - UNCIF"
+        description="Generate and manage official letters of clearance and frontliner responses"
       />
-
-      <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-900">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 text-white py-8 sm:py-12 relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div className="flex flex-col sm:flex-row items-center justify-center mb-4 sm:mb-6">
-              <UShapeLogo size={48} />
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mt-4 sm:mt-0 sm:ml-4" style={{ fontFamily: 'serif' }}>
-                Letter of Clearance
-              </h1>
-            </div>
-            <p className="text-base sm:text-lg text-emerald-100">
-              Professional Documentation & Response Capture System
-            </p>
-          </div>
+      
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">UNCIF Documentation Center</h1>
+          <p className="text-lg text-gray-600">Generate official letters and manage feedback forms</p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 mb-6 sm:mb-8 h-auto sm:h-10">
-              <TabsTrigger value="clearance" className="flex items-center justify-center space-x-2 py-3 sm:py-2 text-xs sm:text-sm">
-                <FileCheck className="w-4 h-4" />
-                <span className="hidden sm:inline">Letter of Clearance</span>
-                <span className="sm:hidden">Clearance</span>
-              </TabsTrigger>
-              <TabsTrigger value="response" className="flex items-center justify-center space-x-2 py-3 sm:py-2 text-xs sm:text-sm">
-                <ClipboardCheck className="w-4 h-4" />
-                <span className="hidden sm:inline">Frontliner Response</span>
-                <span className="sm:hidden">Response</span>
-              </TabsTrigger>
-              <TabsTrigger value="rating" className="flex items-center justify-center space-x-2 py-3 sm:py-2 text-xs sm:text-sm">
-                <Award className="w-4 h-4" />
-                <span className="hidden sm:inline">Representative Rating</span>
-                <span className="sm:hidden">Rating</span>
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="clearance" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="clearance" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Letter of Clearance
+            </TabsTrigger>
+            <TabsTrigger value="frontliner" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Frontliner Response
+            </TabsTrigger>
+            <TabsTrigger value="rating" className="flex items-center gap-2">
+              <Star className="w-4 h-4" />
+              Representative Rating
+            </TabsTrigger>
+            <TabsTrigger value="feedback" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Written Feedback
+            </TabsTrigger>
+          </TabsList>
 
-            {/* Clearance Tab */}
-            <TabsContent value="clearance">
-              <div className="grid lg:grid-cols-2 gap-8">
-                {/* Clearance Form */}
-                <Card className="border-2 border-emerald-400 shadow-2xl bg-gradient-to-br from-emerald-50 to-teal-50">
-                  <CardHeader className="bg-gradient-to-r from-emerald-800 to-teal-800 text-white rounded-t-lg">
-                    <CardTitle className="text-xl flex items-center">
-                      <FileCheck className="w-6 h-6 mr-3" />
-                      Clearance Details
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="representativeName" className="font-semibold text-emerald-900">Representative Name *</Label>
-                        <Input
-                          id="representativeName"
-                          value={clearanceData.representativeName}
-                          onChange={(e) => handleClearanceInputChange('representativeName', e.target.value)}
-                          placeholder="Enter representative name"
-                          className="border-2 border-emerald-300 focus:border-emerald-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="representativeId" className="font-semibold text-emerald-900">Representative ID</Label>
-                        <Input
-                          id="representativeId"
-                          value={clearanceData.representativeId}
-                          onChange={(e) => handleClearanceInputChange('representativeId', e.target.value)}
-                          placeholder="ID or Badge Number"
-                          className="border-2 border-emerald-300 focus:border-emerald-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="department" className="font-semibold text-emerald-900">Department</Label>
-                      <Input
-                        id="department"
-                        value={clearanceData.department}
-                        onChange={(e) => handleClearanceInputChange('department', e.target.value)}
-                        placeholder="Department/Division"
-                        className="border-2 border-emerald-300 focus:border-emerald-500"
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="frontlinerName" className="font-semibold text-emerald-900">Frontliner Name *</Label>
-                        <Input
-                          id="frontlinerName"
-                          value={clearanceData.frontlinerName}
-                          onChange={(e) => handleClearanceInputChange('frontlinerName', e.target.value)}
-                          placeholder="Frontliner's name"
-                          className="border-2 border-emerald-300 focus:border-emerald-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="frontlinerOrganization" className="font-semibold text-emerald-900">Organization</Label>
-                        <Input
-                          id="frontlinerOrganization"
-                          value={clearanceData.frontlinerOrganization}
-                          onChange={(e) => handleClearanceInputChange('frontlinerOrganization', e.target.value)}
-                          placeholder="Frontliner's organization"
-                          className="border-2 border-emerald-300 focus:border-emerald-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="meetingDate" className="font-semibold text-emerald-900">Meeting Date</Label>
-                        <Input
-                          id="meetingDate"
-                          type="date"
-                          value={clearanceData.meetingDate}
-                          onChange={(e) => handleClearanceInputChange('meetingDate', e.target.value)}
-                          className="border-2 border-emerald-300 focus:border-emerald-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="meetingLocation" className="font-semibold text-emerald-900">Meeting Location</Label>
-                        <Input
-                          id="meetingLocation"
-                          value={clearanceData.meetingLocation}
-                          onChange={(e) => handleClearanceInputChange('meetingLocation', e.target.value)}
-                          placeholder="Meeting location"
-                          className="border-2 border-emerald-300 focus:border-emerald-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="customNote" className="font-semibold text-emerald-900">Custom Certification Note</Label>
-                      <Textarea
-                        id="customNote"
-                        value={clearanceData.customNote}
-                        onChange={(e) => handleClearanceInputChange('customNote', e.target.value)}
-                        placeholder="Additional certification details..."
-                        className="border-2 border-emerald-300 focus:border-emerald-500 min-h-[80px]"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Clearance Preview */}
-                <Card className="border-2 border-emerald-600 shadow-2xl">
-                  <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-t-lg">
-                    <CardTitle className="text-xl flex items-center">
-                      <FileCheck className="w-6 h-6 mr-3" />
-                      Preview
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="overflow-auto max-h-[600px]">
-                      <div 
-                        ref={clearanceRef}
-                        className="p-8 bg-gradient-to-br from-white to-gray-50"
-                        style={{ fontFamily: '"Times New Roman", serif' }}
-                      >
-                        <div className="border-8 border-double border-emerald-700 rounded-lg p-8 bg-gradient-to-br from-emerald-50 to-teal-50 relative">
-                          {/* Decorative corners */}
-                          <div className="absolute top-2 left-2 w-6 h-6 border-l-4 border-t-4 border-emerald-500 rounded-tl-lg"></div>
-                          <div className="absolute top-2 right-2 w-6 h-6 border-r-4 border-t-4 border-emerald-500 rounded-tr-lg"></div>
-                          <div className="absolute bottom-2 left-2 w-6 h-6 border-l-4 border-b-4 border-emerald-500 rounded-bl-lg"></div>
-                          <div className="absolute bottom-2 right-2 w-6 h-6 border-r-4 border-b-4 border-emerald-500 rounded-br-lg"></div>
-
-                          {/* Header */}
-                          <div className="text-center mb-8">
-                            <UShapeLogo size={48} />
-                            <div className="text-3xl font-bold text-emerald-900 mt-4 mb-2">UNCIF</div>
-                            <div className="text-lg text-emerald-700 font-semibold">Uniford National Council of Institutes & Frontliners</div>
-                            <div className="w-32 h-1 bg-gradient-to-r from-emerald-600 to-teal-500 mx-auto mt-4"></div>
-                          </div>
-
-                          {/* Main Title */}
-                          <div className="text-center bg-gradient-to-r from-emerald-100 to-teal-100 p-6 rounded-lg border-4 border-emerald-400 mb-8">
-                            <h1 className="text-2xl font-bold text-emerald-900 mb-2">{clearanceContent.title}</h1>
-                            <p className="text-lg text-emerald-700 italic">{clearanceContent.subtitle}</p>
-                          </div>
-
-                          {/* Content */}
-                          <div className="space-y-6">
-                            <div className="bg-white p-6 rounded-lg border-2 border-emerald-200">
-                              <h3 className="text-lg font-bold text-emerald-900 mb-4">Representative Information</h3>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div><strong>Name:</strong> {clearanceContent.representativeName}</div>
-                                <div><strong>ID:</strong> {clearanceContent.representativeId}</div>
-                                <div><strong>Department:</strong> {clearanceContent.department}</div>
-                                <div><strong>Date:</strong> {clearanceContent.meetingDate}</div>
-                              </div>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-lg border-2 border-emerald-200">
-                              <h3 className="text-lg font-bold text-emerald-900 mb-4">Frontliner Information</h3>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div><strong>Name:</strong> {clearanceContent.frontlinerName}</div>
-                                <div><strong>Organization:</strong> {clearanceContent.frontlinerOrganization}</div>
-                                <div><strong>Meeting Location:</strong> {clearanceContent.meetingLocation}</div>
-                              </div>
-                            </div>
-
-                            <div className="bg-emerald-50 p-6 rounded-lg border-2 border-emerald-300">
-                              <h3 className="text-lg font-bold text-emerald-900 mb-4 text-center">CERTIFICATION</h3>
-                              <p className="text-emerald-800 leading-relaxed text-center">
-                                This is to certify that I, <strong>{clearanceContent.representativeName}</strong>, 
-                                representing UNCIF, have successfully engaged with <strong>{clearanceContent.frontlinerName}</strong> 
-                                and have shared all necessary information regarding our programs and services. 
-                                All questions raised by the frontliner have been answered satisfactorily.
-                              </p>
-                              <p className="text-emerald-800 leading-relaxed text-center mt-4">
-                                {clearanceContent.customNote}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Footer */}
-                          <div className="mt-12 pt-8 border-t-2 border-emerald-300">
-                            <div className="flex justify-between items-end">
-                              <div className="text-left">
-                                <p className="text-sm text-gray-600 mb-4">Issue Date: {clearanceContent.currentDate}</p>
-                                <div className="text-lg font-bold text-emerald-900">
-                                  UNCIF Official Seal
-                                </div>
-                              </div>
-                              
-                              <div className="text-center">
-                                <UShapeLogo size={40} />
-                                <p className="text-xs text-gray-500 mt-2">Verified Document</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Response Tab */}
-            <TabsContent value="response">
-              <div className="grid lg:grid-cols-2 gap-8">
-                {/* Response Form */}
-                <Card className="border-2 border-teal-400 shadow-2xl bg-gradient-to-br from-teal-50 to-emerald-50">
-                  <CardHeader className="bg-gradient-to-r from-teal-800 to-emerald-800 text-white rounded-t-lg">
-                    <CardTitle className="text-xl flex items-center">
-                      <ClipboardCheck className="w-6 h-6 mr-3" />
-                      Response Details
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="frontlinerName" className="font-semibold text-teal-900">Frontliner Name *</Label>
-                        <Input
-                          id="frontlinerName"
-                          value={responseData.frontlinerName}
-                          onChange={(e) => handleResponseInputChange('frontlinerName', e.target.value)}
-                          placeholder="Enter frontliner name"
-                          className="border-2 border-teal-300 focus:border-teal-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="frontlinerTitle" className="font-semibold text-teal-900">Title/Position</Label>
-                        <Input
-                          id="frontlinerTitle"
-                          value={responseData.frontlinerTitle}
-                          onChange={(e) => handleResponseInputChange('frontlinerTitle', e.target.value)}
-                          placeholder="Title or position"
-                          className="border-2 border-teal-300 focus:border-teal-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="frontlinerOrganization" className="font-semibold text-teal-900">Organization</Label>
-                      <Input
-                        id="frontlinerOrganization"
-                        value={responseData.frontlinerOrganization}
-                        onChange={(e) => handleResponseInputChange('frontlinerOrganization', e.target.value)}
-                        placeholder="Organization name"
-                        className="border-2 border-teal-300 focus:border-teal-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="contactInfo" className="font-semibold text-teal-900">Contact Information</Label>
-                      <Input
-                        id="contactInfo"
-                        value={responseData.contactInfo}
-                        onChange={(e) => handleResponseInputChange('contactInfo', e.target.value)}
-                        placeholder="Phone/Email"
-                        className="border-2 border-teal-300 focus:border-teal-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="interestLevel" className="font-semibold text-teal-900">Interest Level</Label>
-                      <Select value={responseData.interestLevel} onValueChange={(value) => handleResponseInputChange('interestLevel', value)}>
-                        <SelectTrigger className="border-2 border-teal-300 focus:border-teal-500">
-                          <SelectValue placeholder="Select interest level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="high">High Interest</SelectItem>
-                          <SelectItem value="moderate">Moderate Interest</SelectItem>
-                          <SelectItem value="low">Low Interest</SelectItem>
-                          <SelectItem value="need-info">Need More Information</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="specificQuestions" className="font-semibold text-teal-900">Specific Questions Asked</Label>
-                      <Textarea
-                        id="specificQuestions"
-                        value={responseData.specificQuestions}
-                        onChange={(e) => handleResponseInputChange('specificQuestions', e.target.value)}
-                        placeholder="List the questions asked by the frontliner..."
-                        className="border-2 border-teal-300 focus:border-teal-500 min-h-[80px]"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="followUpRequired" className="font-semibold text-teal-900">Follow-up Required</Label>
-                      <Textarea
-                        id="followUpRequired"
-                        value={responseData.followUpRequired}
-                        onChange={(e) => handleResponseInputChange('followUpRequired', e.target.value)}
-                        placeholder="Any follow-up actions needed..."
-                        className="border-2 border-teal-300 focus:border-teal-500 min-h-[60px]"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="additionalComments" className="font-semibold text-teal-900">Additional Comments</Label>
-                      <Textarea
-                        id="additionalComments"
-                        value={responseData.additionalComments}
-                        onChange={(e) => handleResponseInputChange('additionalComments', e.target.value)}
-                        placeholder="Any additional observations or comments..."
-                        className="border-2 border-teal-300 focus:border-teal-500 min-h-[60px]"
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="representativeName" className="font-semibold text-teal-900">Representative Name</Label>
-                        <Input
-                          id="representativeName"
-                          value={responseData.representativeName}
-                          onChange={(e) => handleResponseInputChange('representativeName', e.target.value)}
-                          placeholder="Your name"
-                          className="border-2 border-teal-300 focus:border-teal-500"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="meetingDate" className="font-semibold text-teal-900">Meeting Date</Label>
-                        <Input
-                          id="meetingDate"
-                          type="date"
-                          value={responseData.meetingDate}
-                          onChange={(e) => handleResponseInputChange('meetingDate', e.target.value)}
-                          className="border-2 border-teal-300 focus:border-teal-500"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Response Preview */}
-                <Card className="border-2 border-teal-600 shadow-2xl">
-                  <CardHeader className="bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-t-lg">
-                    <CardTitle className="text-xl flex items-center">
-                      <ClipboardCheck className="w-6 h-6 mr-3" />
-                      Preview
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="overflow-auto max-h-[600px]">
-                      <div 
-                        ref={responseRef}
-                        className="p-8 bg-gradient-to-br from-white to-gray-50"
-                        style={{ fontFamily: '"Times New Roman", serif' }}
-                      >
-                        <div className="border-8 border-double border-teal-700 rounded-lg p-8 bg-gradient-to-br from-teal-50 to-emerald-50 relative">
-                          {/* Decorative corners */}
-                          <div className="absolute top-2 left-2 w-6 h-6 border-l-4 border-t-4 border-teal-500 rounded-tl-lg"></div>
-                          <div className="absolute top-2 right-2 w-6 h-6 border-r-4 border-t-4 border-teal-500 rounded-tr-lg"></div>
-                          <div className="absolute bottom-2 left-2 w-6 h-6 border-l-4 border-b-4 border-teal-500 rounded-bl-lg"></div>
-                          <div className="absolute bottom-2 right-2 w-6 h-6 border-r-4 border-b-4 border-teal-500 rounded-br-lg"></div>
-
-                          {/* Header */}
-                          <div className="text-center mb-8">
-                            <UShapeLogo size={48} />
-                            <div className="text-3xl font-bold text-teal-900 mt-4 mb-2">UNCIF</div>
-                            <div className="text-lg text-teal-700 font-semibold">Uniford National Council of Institutes & Frontliners</div>
-                            <div className="w-32 h-1 bg-gradient-to-r from-teal-600 to-emerald-500 mx-auto mt-4"></div>
-                          </div>
-
-                          {/* Main Title */}
-                          <div className="text-center bg-gradient-to-r from-teal-100 to-emerald-100 p-6 rounded-lg border-4 border-teal-400 mb-8">
-                            <h1 className="text-2xl font-bold text-teal-900 mb-2">{responseContent.title}</h1>
-                            <p className="text-lg text-teal-700 italic">{responseContent.subtitle}</p>
-                          </div>
-
-                          {/* Content */}
-                          <div className="space-y-6">
-                            <div className="bg-white p-6 rounded-lg border-2 border-teal-200">
-                              <h3 className="text-lg font-bold text-teal-900 mb-4">Frontliner Details</h3>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div><strong>Name:</strong> {responseContent.frontlinerName}</div>
-                                <div><strong>Title:</strong> {responseContent.frontlinerTitle}</div>
-                                <div><strong>Organization:</strong> {responseContent.frontlinerOrganization}</div>
-                                <div><strong>Contact:</strong> {responseContent.contactInfo}</div>
-                              </div>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-lg border-2 border-teal-200">
-                              <h3 className="text-lg font-bold text-teal-900 mb-4">Engagement Summary</h3>
-                              <div className="space-y-3 text-sm">
-                                <div><strong>Interest Level:</strong> {responseContent.interestLevel}</div>
-                                <div><strong>Questions Asked:</strong> {responseContent.specificQuestions}</div>
-                                <div><strong>Follow-up Required:</strong> {responseContent.followUpRequired}</div>
-                                <div><strong>Additional Comments:</strong> {responseContent.additionalComments}</div>
-                              </div>
-                            </div>
-
-                            <div className="bg-teal-50 p-6 rounded-lg border-2 border-teal-300">
-                              <h3 className="text-lg font-bold text-teal-900 mb-4 text-center">REPRESENTATIVE CERTIFICATION</h3>
-                              <p className="text-teal-800 leading-relaxed text-center">
-                                I, <strong>{responseContent.representativeName}</strong>, hereby certify that the above information 
-                                accurately represents the engagement with <strong>{responseContent.frontlinerName}</strong> 
-                                on <strong>{responseContent.meetingDate}</strong>. All responses and feedback have been 
-                                documented truthfully for departmental records.
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Footer */}
-                          <div className="mt-12 pt-8 border-t-2 border-teal-300">
-                            <div className="flex justify-between items-end">
-                              <div className="text-left">
-                                <p className="text-sm text-gray-600 mb-4">Submitted: {responseContent.currentDate}</p>
-                                <div className="text-lg font-bold text-teal-900">
-                                  Representative Signature
-                                </div>
-                              </div>
-                              
-                              <div className="text-center">
-                                <UShapeLogo size={40} />
-                                <p className="text-xs text-gray-500 mt-2">Response Form</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Enhanced Rating Tab */}
-            <TabsContent value="rating">
-              <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-                {/* Enhanced Rating Form */}
-                <Card className="border-2 border-orange-400 shadow-2xl bg-gradient-to-br from-orange-50 to-amber-50">
-                  <CardHeader className="bg-gradient-to-r from-orange-700 to-amber-700 text-white rounded-t-lg p-4 sm:p-6">
-                    <CardTitle className="text-lg sm:text-xl flex items-center">
-                      <Award className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-                      Representative Rating Form
-                    </CardTitle>
-                    <p className="text-orange-100 text-sm">Professional evaluation and feedback system</p>
-                  </CardHeader>
-                  <CardContent className="p-4 sm:p-6 space-y-6">
-                    {/* Evaluator Information */}
-                    <div className="bg-gradient-to-r from-amber-100 to-orange-100 p-4 rounded-lg border-2 border-amber-200">
-                      <h3 className="text-lg font-bold text-orange-900 mb-4">Evaluator Information</h3>
-                      <div className="space-y-4">
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="frontlinerName" className="font-semibold text-orange-900">Your Name *</Label>
-                            <Input
-                              id="frontlinerName"
-                              value={ratingData.frontlinerName}
-                              onChange={(e) => handleRatingInputChange('frontlinerName', e.target.value)}
-                              placeholder="Enter your full name"
-                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="frontlinerTitle" className="font-semibold text-orange-900">Your Position</Label>
-                            <Input
-                              id="frontlinerTitle"
-                              value={ratingData.frontlinerTitle}
-                              onChange={(e) => handleRatingInputChange('frontlinerTitle', e.target.value)}
-                              placeholder="Your job title"
-                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="frontlinerOrganization" className="font-semibold text-orange-900">Your Organization</Label>
-                          <Input
-                            id="frontlinerOrganization"
-                            value={ratingData.frontlinerOrganization}
-                            onChange={(e) => handleRatingInputChange('frontlinerOrganization', e.target.value)}
-                            placeholder="Organization/Company name"
-                            className="border-2 border-orange-300 focus:border-orange-500 bg-white"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Representative Information */}
-                    <div className="bg-gradient-to-r from-orange-100 to-amber-100 p-4 rounded-lg border-2 border-orange-200">
-                      <h3 className="text-lg font-bold text-orange-900 mb-4">Representative Information</h3>
-                      <div className="space-y-4">
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="representativeName" className="font-semibold text-orange-900">Representative Name *</Label>
-                            <Input
-                              id="representativeName"
-                              value={ratingData.representativeName}
-                              onChange={(e) => handleRatingInputChange('representativeName', e.target.value)}
-                              placeholder="UNCIF representative name"
-                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="representativeId" className="font-semibold text-orange-900">Representative ID</Label>
-                            <Input
-                              id="representativeId"
-                              value={ratingData.representativeId}
-                              onChange={(e) => handleRatingInputChange('representativeId', e.target.value)}
-                              placeholder="ID or Badge Number"
-                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="department" className="font-semibold text-orange-900">Department</Label>
-                            <Input
-                              id="department"
-                              value={ratingData.department}
-                              onChange={(e) => handleRatingInputChange('department', e.target.value)}
-                              placeholder="Representative's department"
-                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="meetingDate" className="font-semibold text-orange-900">Meeting Date</Label>
-                            <Input
-                              id="meetingDate"
-                              type="date"
-                              value={ratingData.meetingDate}
-                              onChange={(e) => handleRatingInputChange('meetingDate', e.target.value)}
-                              className="border-2 border-orange-300 focus:border-orange-500 bg-white"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Performance Ratings */}
-                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-lg border-2 border-amber-300">
-                      <h3 className="text-lg font-bold text-orange-900 mb-6 text-center">Performance Evaluation</h3>
-                      <div className="space-y-3">
-                        <StarRating
-                          rating={ratingData.communicationRating}
-                          onRatingChange={(rating) => handleRatingInputChange('communicationRating', rating)}
-                          label="Communication Skills"
-                        />
-                        <StarRating
-                          rating={ratingData.knowledgeRating}
-                          onRatingChange={(rating) => handleRatingInputChange('knowledgeRating', rating)}
-                          label="Knowledge & Expertise"
-                        />
-                        <StarRating
-                          rating={ratingData.professionalismRating}
-                          onRatingChange={(rating) => handleRatingInputChange('professionalismRating', rating)}
-                          label="Professionalism"
-                        />
-                        <StarRating
-                          rating={ratingData.responsivenessRating}
-                          onRatingChange={(rating) => handleRatingInputChange('responsivenessRating', rating)}
-                          label="Responsiveness"
-                        />
-                        <div className="bg-gradient-to-r from-yellow-100 to-amber-100 p-4 rounded-lg border-2 border-yellow-300 mt-4">
-                          <StarRating
-                            rating={ratingData.overallRating}
-                            onRatingChange={(rating) => handleRatingInputChange('overallRating', rating)}
-                            label="Overall Rating"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Feedback Sections */}
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="additionalComments" className="font-semibold text-orange-900">Quick Comments</Label>
-                        <Textarea
-                          id="additionalComments"
-                          value={ratingData.additionalComments}
-                          onChange={(e) => handleRatingInputChange('additionalComments', e.target.value)}
-                          placeholder="Brief comments about the representative's performance..."
-                          className="border-2 border-orange-300 focus:border-orange-500 min-h-[80px] bg-white"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="writtenFeedback" className="font-semibold text-orange-900">Detailed Written Feedback</Label>
-                        <Textarea
-                          id="writtenFeedback"
-                          value={ratingData.writtenFeedback}
-                          onChange={(e) => handleRatingInputChange('writtenFeedback', e.target.value)}
-                          placeholder="Provide detailed feedback about your meeting with the UNCIF representative. Include specific examples of their performance, areas of strength, and suggestions for improvement..."
-                          className="border-2 border-orange-300 focus:border-orange-500 min-h-[120px] bg-white"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Authentication Options */}
-                    <div className="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
-                      <h4 className="font-semibold text-orange-900 mb-3">Authentication Options</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-3">
-                          <input
-                            type="checkbox"
-                            id="hasSignature"
-                            checked={ratingData.hasSignature}
-                            onChange={(e) => handleRatingInputChange('hasSignature', e.target.checked)}
-                            className="w-4 h-4 text-orange-600 bg-white border-2 border-orange-300 rounded focus:ring-orange-500"
-                          />
-                          <Label htmlFor="hasSignature" className="text-orange-900 font-medium">Include Digital Signature</Label>
-                        </div>
-                        {ratingData.hasSignature && (
-                          <Input
-                            value={ratingData.signatureName}
-                            onChange={(e) => handleRatingInputChange('signatureName', e.target.value)}
-                            placeholder="Full name for signature"
-                            className="border-2 border-orange-300 focus:border-orange-500 bg-white ml-7"
-                          />
-                        )}
-                        
-                        <div className="flex items-center space-x-3">
-                          <input
-                            type="checkbox"
-                            id="hasStamp"
-                            checked={ratingData.hasStamp}
-                            onChange={(e) => handleRatingInputChange('hasStamp', e.target.checked)}
-                            className="w-4 h-4 text-orange-600 bg-white border-2 border-orange-300 rounded focus:ring-orange-500"
-                          />
-                          <Label htmlFor="hasStamp" className="text-orange-900 font-medium">Include Official Stamp</Label>
-                        </div>
-                        {ratingData.hasStamp && (
-                          <Select value={ratingData.stampType} onValueChange={(value) => handleRatingInputChange('stampType', value)}>
-                            <SelectTrigger className="border-2 border-orange-300 focus:border-orange-500 bg-white ml-7">
-                              <SelectValue placeholder="Select stamp type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="official">Official Organization Stamp</SelectItem>
-                              <SelectItem value="personal">Personal Seal</SelectItem>
-                              <SelectItem value="department">Department Stamp</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Email Submission */}
-                    <div className="bg-gradient-to-r from-emerald-100 to-teal-100 p-4 rounded-lg border-2 border-emerald-300">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold text-emerald-900">Submit via Email</h4>
-                        <Mail className="w-5 h-5 text-emerald-700" />
-                      </div>
-                      <p className="text-sm text-emerald-800 mb-4">
-                        Click below to submit this rating form directly to UNCIF headquarters via email.
-                      </p>
-                      <Button
-                        onClick={() => handleEmailSubmit('rating')}
-                        disabled={isSending || !ratingData.frontlinerName || !ratingData.representativeName}
-                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200"
-                      >
-                        {isSending ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Preparing Email...
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4 mr-2" />
-                            Submit Rating via Email
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Enhanced Rating Preview */}
-                <Card className="border-2 border-orange-600 shadow-2xl">
-                  <CardHeader className="bg-gradient-to-r from-orange-600 to-amber-500 text-white rounded-t-lg p-4 sm:p-6">
-                    <CardTitle className="text-lg sm:text-xl flex items-center">
-                      <Award className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
-                      Document Preview
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="overflow-auto max-h-[600px]">
-                      <div 
-                        ref={ratingRef}
-                        className="p-8 bg-gradient-to-br from-white to-gray-50"
-                        style={{ fontFamily: '"Times New Roman", serif', minWidth: '800px' }}
-                      >
-                        <div className="border-8 border-double border-orange-700 rounded-lg p-8 bg-gradient-to-br from-orange-50 to-amber-50 relative">
-                          {/* Decorative corners */}
-                          <div className="absolute top-2 left-2 w-6 h-6 border-l-4 border-t-4 border-orange-500 rounded-tl-lg"></div>
-                          <div className="absolute top-2 right-2 w-6 h-6 border-r-4 border-t-4 border-orange-500 rounded-tr-lg"></div>
-                          <div className="absolute bottom-2 left-2 w-6 h-6 border-l-4 border-b-4 border-orange-500 rounded-bl-lg"></div>
-                          <div className="absolute bottom-2 right-2 w-6 h-6 border-r-4 border-b-4 border-orange-500 rounded-br-lg"></div>
-
-                          {/* Header */}
-                          <div className="text-center mb-8">
-                            <UShapeLogo size={48} />
-                            <div className="text-3xl font-bold text-orange-900 mt-4 mb-2">UNCIF</div>
-                            <div className="text-lg text-orange-700 font-semibold">Uniford National Council of Institutes & Frontliners</div>
-                            <div className="w-32 h-1 bg-gradient-to-r from-orange-600 to-amber-500 mx-auto mt-4"></div>
-                          </div>
-
-                          {/* Main Title */}
-                          <div className="text-center bg-gradient-to-r from-orange-100 to-amber-100 p-6 rounded-lg border-4 border-orange-400 mb-8">
-                            <h1 className="text-2xl font-bold text-orange-900 mb-2">{ratingContent.title}</h1>
-                            <p className="text-lg text-orange-700 italic">{ratingContent.subtitle}</p>
-                          </div>
-
-                          {/* Content */}
-                          <div className="space-y-6">
-                            <div className="grid grid-cols-2 gap-6">
-                              <div className="bg-white p-6 rounded-lg border-2 border-orange-200">
-                                <h3 className="text-lg font-bold text-orange-900 mb-4">Evaluator Information</h3>
-                                <div className="space-y-2 text-sm">
-                                  <div><strong>Name:</strong> {ratingContent.frontlinerName}</div>
-                                  <div><strong>Title:</strong> {ratingContent.frontlinerTitle}</div>
-                                  <div><strong>Organization:</strong> {ratingContent.frontlinerOrganization}</div>
-                                </div>
-                              </div>
-
-                              <div className="bg-white p-6 rounded-lg border-2 border-orange-200">
-                                <h3 className="text-lg font-bold text-orange-900 mb-4">Representative Information</h3>
-                                <div className="space-y-2 text-sm">
-                                  <div><strong>Name:</strong> {ratingContent.representativeName}</div>
-                                  <div><strong>ID:</strong> {ratingContent.representativeId}</div>
-                                  <div><strong>Department:</strong> {ratingContent.department}</div>
-                                  <div><strong>Meeting Date:</strong> {ratingContent.meetingDate}</div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="bg-gradient-to-r from-amber-100 to-orange-100 p-6 rounded-lg border-4 border-amber-300">
-                              <h3 className="text-lg font-bold text-orange-900 mb-6 text-center">PERFORMANCE RATINGS</h3>
-                              <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-semibold">Communication:</span>
-                                    <div className="flex space-x-1">
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                          key={star}
-                                          className={`w-5 h-5 ${
-                                            star <= ratingContent.communicationRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-semibold">Knowledge:</span>
-                                    <div className="flex space-x-1">
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                          key={star}
-                                          className={`w-5 h-5 ${
-                                            star <= ratingContent.knowledgeRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-semibold">Professionalism:</span>
-                                    <div className="flex space-x-1">
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                          key={star}
-                                          className={`w-5 h-5 ${
-                                            star <= ratingContent.professionalismRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-semibold">Responsiveness:</span>
-                                    <div className="flex space-x-1">
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                          key={star}
-                                          className={`w-5 h-5 ${
-                                            star <= ratingContent.responsivenessRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex items-center justify-center">
-                                  <div className="text-center p-6 bg-gradient-to-r from-yellow-100 to-amber-100 rounded-lg border-4 border-yellow-300">
-                                    <div className="text-lg font-bold text-orange-900 mb-2">Overall Rating</div>
-                                    <div className="flex justify-center space-x-1 mb-2">
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                          key={star}
-                                          className={`w-8 h-8 ${
-                                            star <= ratingContent.overallRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                    <div className="text-2xl font-bold text-orange-900">{ratingContent.overallRating}/5</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {(ratingContent.additionalComments !== '[No additional comments]' || ratingContent.writtenFeedback !== '[No written feedback provided]') && (
-                              <div className="bg-white p-6 rounded-lg border-2 border-orange-200">
-                                <h3 className="text-lg font-bold text-orange-900 mb-4">Feedback & Comments</h3>
-                                <div className="space-y-4">
-                                  {ratingContent.additionalComments !== '[No additional comments]' && (
-                                    <div>
-                                      <h4 className="font-semibold text-orange-800 mb-2">Quick Comments:</h4>
-                                      <p className="text-orange-700 leading-relaxed">{ratingContent.additionalComments}</p>
-                                    </div>
-                                  )}
-                                  {ratingContent.writtenFeedback !== '[No written feedback provided]' && (
-                                    <div>
-                                      <h4 className="font-semibold text-orange-800 mb-2">Detailed Written Feedback:</h4>
-                                      <p className="text-orange-700 leading-relaxed">{ratingContent.writtenFeedback}</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Footer */}
-                          <div className="mt-12 pt-8 border-t-2 border-orange-300">
-                            <div className="flex justify-between items-end">
-                              <div className="text-left">
-                                <p className="text-sm text-gray-600 mb-4">Submitted: {ratingContent.currentDate}</p>
-                                {ratingContent.hasSignature && (
-                                  <div className="mb-4">
-                                    <div className="text-lg font-bold text-orange-900 border-b-2 border-orange-300 pb-2 mb-2 w-48">
-                                      {ratingContent.signatureName}
-                                    </div>
-                                    <p className="text-xs text-gray-500">Digital Signature</p>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div className="text-center">
-                                <UShapeLogo size={40} />
-                                {ratingContent.hasStamp && (
-                                  <div className="mt-2 p-3 border-4 border-orange-600 rounded-full bg-orange-100">
-                                    <p className="text-xs font-bold text-orange-800">{ratingContent.stampType}</p>
-                                  </div>
-                                )}
-                                <p className="text-xs text-gray-500 mt-2">Official Rating Form</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
-
-          {/* Enhanced Action Buttons */}
-          <Card className="mt-6 sm:mt-8 border-2 border-emerald-400 shadow-2xl bg-gradient-to-r from-emerald-50 to-teal-50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold mb-4 text-emerald-900 flex items-center">
-                    <Download className="w-5 h-5 mr-2" />
-                    Download {activeTab === 'clearance' ? 'Clearance' : activeTab === 'response' ? 'Response' : 'Rating'} Document
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {['pdf', 'png', 'jpg', 'word'].map((format) => (
-                      <Button
-                        key={format}
-                        onClick={() => handleDownload(format as any, activeTab as any)}
-                        disabled={isDownloading}
-                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold py-2 px-3 text-sm"
-                      >
-                        {isDownloading ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        ) : (
-                          format.toUpperCase()
-                        )}
-                      </Button>
-                    ))}
+          {/* Letter of Clearance Tab */}
+          <TabsContent value="clearance">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Letter of Clearance Form
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="applicantName">Applicant Name</Label>
+                    <Input
+                      id="applicantName"
+                      value={formData.applicantName}
+                      onChange={(e) => setFormData({...formData, applicantName: e.target.value})}
+                      placeholder="Enter applicant's full name"
+                    />
                   </div>
-                </div>
 
-                {activeTab === 'rating' && (
-                  <div className="lg:w-80">
-                    <h3 className="text-lg font-bold mb-4 text-emerald-900 flex items-center">
-                      <Mail className="w-5 h-5 mr-2" />
-                      Quick Email Submit
-                    </h3>
-                    <Button
-                      onClick={() => handleEmailSubmit('rating')}
-                      disabled={isSending || !ratingData.frontlinerName || !ratingData.representativeName}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4"
+                  <div>
+                    <Label htmlFor="applicationDate">Application Date</Label>
+                    <Input
+                      id="applicationDate"
+                      type="date"
+                      value={formData.applicationDate}
+                      onChange={(e) => setFormData({...formData, applicationDate: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="clearanceType">Clearance Type</Label>
+                    <Select value={formData.clearanceType} onValueChange={(value) => setFormData({...formData, clearanceType: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select clearance type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="employment">Employment Clearance</SelectItem>
+                        <SelectItem value="travel">Travel Clearance</SelectItem>
+                        <SelectItem value="business">Business Clearance</SelectItem>
+                        <SelectItem value="academic">Academic Clearance</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="purpose">Purpose</Label>
+                    <Textarea
+                      id="purpose"
+                      value={formData.purpose}
+                      onChange={(e) => setFormData({...formData, purpose: e.target.value})}
+                      placeholder="Describe the purpose for this clearance"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="additionalNotes">Additional Notes</Label>
+                    <Textarea
+                      id="additionalNotes"
+                      value={formData.additionalNotes}
+                      onChange={(e) => setFormData({...formData, additionalNotes: e.target.value})}
+                      placeholder="Any additional information"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="signature">Digital Signature</Label>
+                    <Input
+                      id="signature"
+                      value={formData.signature}
+                      onChange={(e) => setFormData({...formData, signature: e.target.value})}
+                      placeholder="Type your full name as signature"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="stamp">Official Stamp/ID</Label>
+                    <Input
+                      id="stamp"
+                      value={formData.stamp}
+                      onChange={(e) => setFormData({...formData, stamp: e.target.value})}
+                      placeholder="Enter stamp number or official ID"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <Button 
+                      onClick={() => generatePDF('clearance-preview', 'letter-of-clearance.pdf')}
+                      disabled={isGenerating}
+                      className="flex-1"
                     >
-                      {isSending ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Preparing...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 mr-2" />
-                          Email to UNCIF
-                        </>
-                      )}
+                      <Download className="w-4 h-4 mr-2" />
+                      {isGenerating ? 'Generating...' : 'Download PDF'}
+                    </Button>
+                    <Button 
+                      onClick={() => sendEmail(formData, 'New Letter of Clearance Application', 'Letter of Clearance')}
+                      disabled={isSending}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      {isSending ? 'Sending...' : 'Send Email'}
                     </Button>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div id="clearance-preview" className="bg-white p-8 rounded-lg shadow-sm border min-h-[600px]">
+                    <div className="text-center mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">UNCIF</h2>
+                      <h3 className="text-xl font-semibold text-gray-700">LETTER OF CLEARANCE</h3>
+                      <div className="w-24 h-1 bg-blue-600 mx-auto mt-4"></div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Applicant Name:</strong>
+                          <p className="border-b border-gray-300 pb-1">{formData.applicantName || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Date:</strong>
+                          <p className="border-b border-gray-300 pb-1">{formData.applicationDate || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <strong>Clearance Type:</strong>
+                        <p className="border-b border-gray-300 pb-1">{formData.clearanceType || '_________________'}</p>
+                      </div>
+
+                      <div>
+                        <strong>Purpose:</strong>
+                        <p className="min-h-[80px] border border-gray-300 p-3 rounded">
+                          {formData.purpose || 'Purpose of clearance will be displayed here...'}
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong>Additional Notes:</strong>
+                        <p className="min-h-[60px] border border-gray-300 p-3 rounded">
+                          {formData.additionalNotes || 'Additional notes will be displayed here...'}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-8 mt-12">
+                        <div>
+                          <strong>Signature:</strong>
+                          <p className="border-b border-gray-300 pb-1 mt-8">{formData.signature || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Official Stamp:</strong>
+                          <p className="border-b border-gray-300 pb-1 mt-8">{formData.stamp || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-12 text-center text-sm text-gray-500">
+                        <p>This is an official document issued by UNCIF</p>
+                        <p>Generated on: {new Date().toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Frontliner Response Tab */}
+          <TabsContent value="frontliner">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5" />
+                    Frontliner Response Form
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="frontlinerName">Frontliner Name</Label>
+                    <Input
+                      id="frontlinerName"
+                      value={frontlinerData.frontlinerName}
+                      onChange={(e) => setFrontlinerData({...frontlinerData, frontlinerName: e.target.value})}
+                      placeholder="Enter frontliner's name"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="representativeName">Representative Name</Label>
+                    <Input
+                      id="representativeName"
+                      value={frontlinerData.representativeName}
+                      onChange={(e) => setFrontlinerData({...frontlinerData, representativeName: e.target.value})}
+                      placeholder="Enter representative's name"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="meetingDate">Meeting Date</Label>
+                    <Input
+                      id="meetingDate"
+                      type="date"
+                      value={frontlinerData.meetingDate}
+                      onChange={(e) => setFrontlinerData({...frontlinerData, meetingDate: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="meetingType">Meeting Type</Label>
+                    <Select value={frontlinerData.meetingType} onValueChange={(value) => setFrontlinerData({...frontlinerData, meetingType: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select meeting type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="consultation">Consultation</SelectItem>
+                        <SelectItem value="complaint">Complaint Resolution</SelectItem>
+                        <SelectItem value="inquiry">General Inquiry</SelectItem>
+                        <SelectItem value="follow-up">Follow-up Meeting</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="responseType">Response Type</Label>
+                    <Select value={frontlinerData.responseType} onValueChange={(value) => setFrontlinerData({...frontlinerData, responseType: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select response type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="resolved">Issue Resolved</SelectItem>
+                        <SelectItem value="escalated">Escalated to Higher Authority</SelectItem>
+                        <SelectItem value="pending">Pending Further Review</SelectItem>
+                        <SelectItem value="referred">Referred to Another Department</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="responseDetails">Response Details</Label>
+                    <Textarea
+                      id="responseDetails"
+                      value={frontlinerData.responseDetails}
+                      onChange={(e) => setFrontlinerData({...frontlinerData, responseDetails: e.target.value})}
+                      placeholder="Describe the response provided to the representative"
+                      rows={4}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="recommendations">Recommendations</Label>
+                    <Textarea
+                      id="recommendations"
+                      value={frontlinerData.recommendations}
+                      onChange={(e) => setFrontlinerData({...frontlinerData, recommendations: e.target.value})}
+                      placeholder="Any recommendations for future interactions"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="frontlinerSignature">Digital Signature</Label>
+                    <Input
+                      id="frontlinerSignature"
+                      value={frontlinerData.signature}
+                      onChange={(e) => setFrontlinerData({...frontlinerData, signature: e.target.value})}
+                      placeholder="Type your full name as signature"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="frontlinerStamp">Employee ID/Stamp</Label>
+                    <Input
+                      id="frontlinerStamp"
+                      value={frontlinerData.stamp}
+                      onChange={(e) => setFrontlinerData({...frontlinerData, stamp: e.target.value})}
+                      placeholder="Enter employee ID or stamp number"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <Button 
+                      onClick={() => generatePDF('frontliner-preview', 'frontliner-response.pdf')}
+                      disabled={isGenerating}
+                      className="flex-1"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      {isGenerating ? 'Generating...' : 'Download PDF'}
+                    </Button>
+                    <Button 
+                      onClick={() => sendEmail(frontlinerData, 'New Frontliner Response Report', 'Frontliner Response')}
+                      disabled={isSending}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      {isSending ? 'Sending...' : 'Send Email'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div id="frontliner-preview" className="bg-white p-8 rounded-lg shadow-sm border min-h-[600px]">
+                    <div className="text-center mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">UNCIF</h2>
+                      <h3 className="text-xl font-semibold text-gray-700">FRONTLINER RESPONSE REPORT</h3>
+                      <div className="w-24 h-1 bg-blue-600 mx-auto mt-4"></div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Frontliner Name:</strong>
+                          <p className="border-b border-gray-300 pb-1">{frontlinerData.frontlinerName || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Meeting Date:</strong>
+                          <p className="border-b border-gray-300 pb-1">{frontlinerData.meetingDate || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Representative Name:</strong>
+                          <p className="border-b border-gray-300 pb-1">{frontlinerData.representativeName || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Meeting Type:</strong>
+                          <p className="border-b border-gray-300 pb-1">{frontlinerData.meetingType || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <strong>Response Type:</strong>
+                        <p className="border-b border-gray-300 pb-1">{frontlinerData.responseType || '_________________'}</p>
+                      </div>
+
+                      <div>
+                        <strong>Response Details:</strong>
+                        <p className="min-h-[100px] border border-gray-300 p-3 rounded">
+                          {frontlinerData.responseDetails || 'Response details will be displayed here...'}
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong>Recommendations:</strong>
+                        <p className="min-h-[80px] border border-gray-300 p-3 rounded">
+                          {frontlinerData.recommendations || 'Recommendations will be displayed here...'}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-8 mt-12">
+                        <div>
+                          <strong>Frontliner Signature:</strong>
+                          <p className="border-b border-gray-300 pb-1 mt-8">{frontlinerData.signature || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Employee ID:</strong>
+                          <p className="border-b border-gray-300 pb-1 mt-8">{frontlinerData.stamp || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-12 text-center text-sm text-gray-500">
+                        <p>This is an official response report by UNCIF</p>
+                        <p>Generated on: {new Date().toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Representative Rating Tab */}
+          <TabsContent value="rating">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="w-5 h-5" />
+                    Representative Rating Form
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="ratingRepName">Representative Name</Label>
+                    <Input
+                      id="ratingRepName"
+                      value={ratingData.representativeName}
+                      onChange={(e) => setRatingData({...ratingData, representativeName: e.target.value})}
+                      placeholder="Enter representative's name"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="ratingDate">Rating Date</Label>
+                    <Input
+                      id="ratingDate"
+                      type="date"
+                      value={ratingData.ratingDate}
+                      onChange={(e) => setRatingData({...ratingData, ratingDate: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="text-base font-medium">Punctuality</Label>
+                      {renderStarRating(ratingData.punctuality, (value) => setRatingData({...ratingData, punctuality: value}))}
+                    </div>
+
+                    <div>
+                      <Label className="text-base font-medium">Communication Skills</Label>
+                      {renderStarRating(ratingData.communication, (value) => setRatingData({...ratingData, communication: value}))}
+                    </div>
+
+                    <div>
+                      <Label className="text-base font-medium">Professionalism</Label>
+                      {renderStarRating(ratingData.professionalism, (value) => setRatingData({...ratingData, professionalism: value}))}
+                    </div>
+
+                    <div>
+                      <Label className="text-base font-medium">Problem Solving</Label>
+                      {renderStarRating(ratingData.problemSolving, (value) => setRatingData({...ratingData, problemSolving: value}))}
+                    </div>
+
+                    <div>
+                      <Label className="text-base font-medium">Overall Satisfaction</Label>
+                      {renderStarRating(ratingData.overallSatisfaction, (value) => setRatingData({...ratingData, overallSatisfaction: value}))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="improvements">Areas for Improvement</Label>
+                    <Textarea
+                      id="improvements"
+                      value={ratingData.improvements}
+                      onChange={(e) => setRatingData({...ratingData, improvements: e.target.value})}
+                      placeholder="Suggest areas where the representative can improve"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="ratingComments">Additional Comments</Label>
+                    <Textarea
+                      id="ratingComments"
+                      value={ratingData.additionalComments}
+                      onChange={(e) => setRatingData({...ratingData, additionalComments: e.target.value})}
+                      placeholder="Any additional feedback or comments"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="ratingSignature">Digital Signature</Label>
+                    <Input
+                      id="ratingSignature"
+                      value={ratingData.signature}
+                      onChange={(e) => setRatingData({...ratingData, signature: e.target.value})}
+                      placeholder="Type your full name as signature"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="ratingStamp">Evaluator ID/Stamp</Label>
+                    <Input
+                      id="ratingStamp"
+                      value={ratingData.stamp}
+                      onChange={(e) => setRatingData({...ratingData, stamp: e.target.value})}
+                      placeholder="Enter evaluator ID or stamp number"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <Button 
+                      onClick={() => generatePDF('rating-preview', 'representative-rating.pdf')}
+                      disabled={isGenerating}
+                      className="flex-1"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      {isGenerating ? 'Generating...' : 'Download PDF'}
+                    </Button>
+                    <Button 
+                      onClick={() => sendEmail(ratingData, 'New Representative Rating Report', 'Representative Rating')}
+                      disabled={isSending}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      {isSending ? 'Sending...' : 'Send Email'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div id="rating-preview" className="bg-white p-8 rounded-lg shadow-sm border min-h-[600px]">
+                    <div className="text-center mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">UNCIF</h2>
+                      <h3 className="text-xl font-semibold text-gray-700">REPRESENTATIVE RATING REPORT</h3>
+                      <div className="w-24 h-1 bg-blue-600 mx-auto mt-4"></div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Representative Name:</strong>
+                          <p className="border-b border-gray-300 pb-1">{ratingData.representativeName || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Rating Date:</strong>
+                          <p className="border-b border-gray-300 pb-1">{ratingData.ratingDate || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-lg">Performance Ratings</h4>
+                        <div className="grid grid-cols-1 gap-3">
+                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Punctuality:</span>
+                            <Badge variant="outline">{ratingData.punctuality ? `${ratingData.punctuality}/5` : 'Not rated'}</Badge>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Communication Skills:</span>
+                            <Badge variant="outline">{ratingData.communication ? `${ratingData.communication}/5` : 'Not rated'}</Badge>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Professionalism:</span>
+                            <Badge variant="outline">{ratingData.professionalism ? `${ratingData.professionalism}/5` : 'Not rated'}</Badge>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span>Problem Solving:</span>
+                            <Badge variant="outline">{ratingData.problemSolving ? `${ratingData.problemSolving}/5` : 'Not rated'}</Badge>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-blue-50 rounded border-2 border-blue-200">
+                            <span className="font-medium">Overall Satisfaction:</span>
+                            <Badge className="bg-blue-600">{ratingData.overallSatisfaction ? `${ratingData.overallSatisfaction}/5` : 'Not rated'}</Badge>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <strong>Areas for Improvement:</strong>
+                        <p className="min-h-[80px] border border-gray-300 p-3 rounded">
+                          {ratingData.improvements || 'Areas for improvement will be displayed here...'}
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong>Additional Comments:</strong>
+                        <p className="min-h-[80px] border border-gray-300 p-3 rounded">
+                          {ratingData.additionalComments || 'Additional comments will be displayed here...'}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-8 mt-12">
+                        <div>
+                          <strong>Evaluator Signature:</strong>
+                          <p className="border-b border-gray-300 pb-1 mt-8">{ratingData.signature || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Evaluator ID:</strong>
+                          <p className="border-b border-gray-300 pb-1 mt-8">{ratingData.stamp || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-12 text-center text-sm text-gray-500">
+                        <p>This is an official rating report by UNCIF</p>
+                        <p>Generated on: {new Date().toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Written Feedback Tab */}
+          <TabsContent value="feedback">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5" />
+                    Written Feedback Form
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="feedbackFrontlinerName">Frontliner Name</Label>
+                    <Input
+                      id="feedbackFrontlinerName"
+                      value={feedbackData.frontlinerName}
+                      onChange={(e) => setFeedbackData({...feedbackData, frontlinerName: e.target.value})}
+                      placeholder="Enter your name"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="feedbackRepresentativeName">Representative Name</Label>
+                    <Input
+                      id="feedbackRepresentativeName"
+                      value={feedbackData.representativeName}
+                      onChange={(e) => setFeedbackData({...feedbackData, representativeName: e.target.value})}
+                      placeholder="Enter representative's name"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="feedbackMeetingDate">Meeting Date</Label>
+                    <Input
+                      id="feedbackMeetingDate"
+                      type="date"
+                      value={feedbackData.meetingDate}
+                      onChange={(e) => setFeedbackData({...feedbackData, meetingDate: e.target.value})}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="meetingPurpose">Meeting Purpose</Label>
+                    <Input
+                      id="meetingPurpose"
+                      value={feedbackData.meetingPurpose}
+                      onChange={(e) => setFeedbackData({...feedbackData, meetingPurpose: e.target.value})}
+                      placeholder="Brief description of meeting purpose"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="feedbackType">Feedback Type</Label>
+                    <Select value={feedbackData.feedbackType} onValueChange={(value) => setFeedbackData({...feedbackData, feedbackType: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select feedback type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="positive">Positive Feedback</SelectItem>
+                        <SelectItem value="constructive">Constructive Criticism</SelectItem>
+                        <SelectItem value="concern">Concern/Issue</SelectItem>
+                        <SelectItem value="suggestion">Suggestion for Improvement</SelectItem>
+                        <SelectItem value="general">General Observation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="detailedFeedback">Detailed Feedback</Label>
+                    <Textarea
+                      id="detailedFeedback"
+                      value={feedbackData.detailedFeedback}
+                      onChange={(e) => setFeedbackData({...feedbackData, detailedFeedback: e.target.value})}
+                      placeholder="Provide detailed feedback about the representative's performance during the meeting"
+                      rows={5}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="suggestions">Suggestions for Improvement</Label>
+                    <Textarea
+                      id="suggestions"
+                      value={feedbackData.suggestions}
+                      onChange={(e) => setFeedbackData({...feedbackData, suggestions: e.target.value})}
+                      placeholder="Any specific suggestions for improving future interactions"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="followUpRequired"
+                      checked={feedbackData.followUpRequired}
+                      onCheckedChange={(checked) => setFeedbackData({...feedbackData, followUpRequired: checked === true})}
+                    />
+                    <Label htmlFor="followUpRequired">Follow-up required</Label>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="priority">Priority Level</Label>
+                    <Select value={feedbackData.priority} onValueChange={(value) => setFeedbackData({...feedbackData, priority: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select priority level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low Priority</SelectItem>
+                        <SelectItem value="medium">Medium Priority</SelectItem>
+                        <SelectItem value="high">High Priority</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="feedbackSignature">Digital Signature</Label>
+                    <Input
+                      id="feedbackSignature"
+                      value={feedbackData.signature}
+                      onChange={(e) => setFeedbackData({...feedbackData, signature: e.target.value})}
+                      placeholder="Type your full name as signature"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="feedbackStamp">Employee ID/Stamp</Label>
+                    <Input
+                      id="feedbackStamp"
+                      value={feedbackData.stamp}
+                      onChange={(e) => setFeedbackData({...feedbackData, stamp: e.target.value})}
+                      placeholder="Enter employee ID or stamp number"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <Button 
+                      onClick={() => generatePDF('feedback-preview', 'written-feedback.pdf')}
+                      disabled={isGenerating}
+                      className="flex-1"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      {isGenerating ? 'Generating...' : 'Download PDF'}
+                    </Button>
+                    <Button 
+                      onClick={() => sendEmail(feedbackData, 'New Written Feedback Report', 'Written Feedback')}
+                      disabled={isSending}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      {isSending ? 'Sending...' : 'Send Email'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div id="feedback-preview" className="bg-white p-8 rounded-lg shadow-sm border min-h-[600px]">
+                    <div className="text-center mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">UNCIF</h2>
+                      <h3 className="text-xl font-semibold text-gray-700">WRITTEN FEEDBACK REPORT</h3>
+                      <div className="w-24 h-1 bg-blue-600 mx-auto mt-4"></div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Frontliner Name:</strong>
+                          <p className="border-b border-gray-300 pb-1">{feedbackData.frontlinerName || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Meeting Date:</strong>
+                          <p className="border-b border-gray-300 pb-1">{feedbackData.meetingDate || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Representative Name:</strong>
+                          <p className="border-b border-gray-300 pb-1">{feedbackData.representativeName || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Meeting Purpose:</strong>
+                          <p className="border-b border-gray-300 pb-1">{feedbackData.meetingPurpose || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Feedback Type:</strong>
+                          <Badge variant="outline" className="w-fit">
+                            {feedbackData.feedbackType || 'Not specified'}
+                          </Badge>
+                        </div>
+                        <div>
+                          <strong>Priority Level:</strong>
+                          <Badge 
+                            variant={feedbackData.priority === 'urgent' ? 'destructive' : 
+                                    feedbackData.priority === 'high' ? 'destructive' : 
+                                    feedbackData.priority === 'medium' ? 'default' : 'secondary'}
+                            className="w-fit"
+                          >
+                            {feedbackData.priority || 'Not specified'}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div>
+                        <strong>Detailed Feedback:</strong>
+                        <p className="min-h-[120px] border border-gray-300 p-3 rounded">
+                          {feedbackData.detailedFeedback || 'Detailed feedback will be displayed here...'}
+                        </p>
+                      </div>
+
+                      <div>
+                        <strong>Suggestions for Improvement:</strong>
+                        <p className="min-h-[80px] border border-gray-300 p-3 rounded">
+                          {feedbackData.suggestions || 'Suggestions will be displayed here...'}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <strong>Follow-up Required:</strong>
+                        <Badge variant={feedbackData.followUpRequired ? "destructive" : "secondary"}>
+                          {feedbackData.followUpRequired ? 'Yes' : 'No'}
+                        </Badge>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-8 mt-12">
+                        <div>
+                          <strong>Frontliner Signature:</strong>
+                          <p className="border-b border-gray-300 pb-1 mt-8">{feedbackData.signature || '_________________'}</p>
+                        </div>
+                        <div>
+                          <strong>Employee ID:</strong>
+                          <p className="border-b border-gray-300 pb-1 mt-8">{feedbackData.stamp || '_________________'}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-12 text-center text-sm text-gray-500">
+                        <p>This is an official feedback report by UNCIF</p>
+                        <p>Generated on: {new Date().toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
-    </>
+    </div>
   );
 };
 
