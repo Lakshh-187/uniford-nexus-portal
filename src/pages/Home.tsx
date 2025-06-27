@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import OrganizationMemories from '@/components/OrganizationMemories';
 import UNCIFEventsGallery from '@/components/UNCIFEventsGallery';
+import UNCIFAwards from '@/components/UNCIFAwards';
 import { 
   ArrowDown, 
   Book, 
@@ -139,7 +139,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50">
-      {/* Hero Section with Updated Design */}
+      {/* Hero Section with Fixed Image Heights */}
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 text-white min-h-screen flex items-center">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-600/80 via-purple-700/80 to-purple-800/80"></div>
@@ -189,7 +189,7 @@ const Home = () => {
                     <img 
                       src="/lovable-uploads/5fe95266-6cb6-46c2-b65d-c9dc769afcd2.png" 
                       alt="Uniford Success Statistics" 
-                      className="w-full h-40 object-cover rounded-lg"
+                      className="w-full h-48 object-cover object-center rounded-lg"
                     />
                     <p className="text-purple-100 text-sm mt-2 text-center">500+ Frontliners Supported</p>
                   </div>
@@ -197,7 +197,7 @@ const Home = () => {
                     <img 
                       src="/lovable-uploads/2634e39f-8221-4f95-a7d2-ec8a160cd85b.png" 
                       alt="Uniford Team Community" 
-                      className="w-full h-40 object-cover rounded-lg"
+                      className="w-full h-48 object-cover object-center rounded-lg"
                     />
                     <p className="text-purple-100 text-sm mt-2 text-center">Global Community Network</p>
                   </div>
@@ -207,7 +207,7 @@ const Home = () => {
                     <img 
                       src="/lovable-uploads/9229596b-9817-4489-8845-0a3b10394ecd.png" 
                       alt="Uniford Representatives" 
-                      className="w-full h-40 object-cover rounded-lg"
+                      className="w-full h-48 object-cover object-center rounded-lg"
                     />
                     <p className="text-purple-100 text-sm mt-2 text-center">Expert Representatives</p>
                   </div>
@@ -215,7 +215,7 @@ const Home = () => {
                     <img 
                       src="/lovable-uploads/7156d42b-ca56-4790-a9ef-8d485c75e12d.png" 
                       alt="Uniford Guidance Program" 
-                      className="w-full h-40 object-cover rounded-lg"
+                      className="w-full h-48 object-cover object-center rounded-lg"
                     />
                     <p className="text-purple-100 text-sm mt-2 text-center">Guidance at Every Step</p>
                   </div>
@@ -249,6 +249,9 @@ const Home = () => {
 
       {/* Organization Memories Section */}
       <OrganizationMemories />
+
+      {/* UNCIF Awards Section */}
+      <UNCIFAwards />
 
       {/* UNCIF Events & Gallery Section */}
       <UNCIFEventsGallery />
