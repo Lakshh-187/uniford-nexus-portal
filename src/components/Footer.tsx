@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { 
   Mail, 
@@ -22,13 +21,15 @@ import {
   Heart,
   Stamp,
   Settings,
-  FileCheck
+  FileCheck,
+  Zap
 } from 'lucide-react';
 
 const Footer = () => {
   const mainPages = [
     { name: 'Home', path: '/', icon: Home },
     { name: 'About', path: '/about', icon: Info },
+    { name: 'UNSIP', path: '/unsip', icon: Zap },
     { name: 'MOU & Collaboration', path: '/mou-collaboration', icon: HandHeart },
     { name: 'Authentication', path: '/authentication', icon: Shield },
     { name: 'Grants Portal', path: '/grants', icon: DollarSign },

@@ -23,6 +23,10 @@ import Donation from "./pages/Donation";
 import PolicyAgreement from "./pages/PolicyAgreement";
 import LOC from "./pages/LOC";
 import Office from "./pages/Office";
+import UNSIP from "./pages/UNSIP";
+import UIS1 from "./pages/UIS1";
+import UIS2 from "./pages/UIS2";
+import UIS3 from "./pages/UIS3";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +58,10 @@ const App = () => (
                 <Route path="/policy-agreement" element={<PolicyAgreement />} />
                 <Route path="/loc" element={<LOC />} />
                 <Route path="/office" element={<Office />} />
+                <Route path="/unsip" element={<UNSIP />} />
+                <Route path="/uis-1" element={<UIS1 />} />
+                <Route path="/uis-2" element={<UIS2 />} />
+                <Route path="/uis-3" element={<UIS3 />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
