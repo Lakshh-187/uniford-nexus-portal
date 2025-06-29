@@ -4,6 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { 
   FileText, 
   Download, 
   Eye, 
@@ -24,6 +33,8 @@ import SEO from '@/components/SEO';
 const UIS2 = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const categories = ['All', 'Templates', 'Guides', 'Videos', 'Tools', 'Case Studies'];
 
@@ -128,6 +139,10 @@ const UIS2 = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const totalPages = Math.ceil(filteredResources.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedResources = filteredResources.slice(startIndex, startIndex + itemsPerPage);
+
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'Template': return 'bg-blue-100 text-blue-700 border-blue-200';
@@ -213,59 +228,47 @@ const UIS2 = () => {
               Learning Resources ({filteredResources.length})
             </h2>
             <p className="text-gray-600 mt-2">
-              Curated resources to accelerate your learning and development
+              Page {currentPage} of {totalPages} - Curated resources to accelerate your learning
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
-            {filteredResources.map((resource) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {paginatedResources.map((resource) => (
               <Card key={resource.id} className="hover:shadow-lg transition-all duration-300 border-green-200">
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <div className="flex items-start justify-between mb-2">
-                    <Badge className={getTypeColor(resource.type)}>
+                    <Badge className={getTypeColor(resource.type)} className="text-xs">
                       {resource.type}
                     </Badge>
-                    <Badge className={getDifficultyColor(resource.difficulty)}>
+                    <Badge className={getDifficultyColor(resource.difficulty)} className="text-xs">
                       {resource.difficulty}
                     </Badge>
                   </div>
                   <CardTitle className="text-lg text-gray-900 line-clamp-2">
                     {resource.title}
                   </CardTitle>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Star className="w-3 h-3 text-yellow-500 mr-1" />
                     {resource.rating}
                     <span className="mx-2">•</span>
-                    <Download className="w-4 h-4 mr-1" />
+                    <Download className="w-3 h-3 mr-1" />
                     {resource.downloads}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {resource.description}
-                  </p>
-                  
-                  <div className="space-y-2 mb-4 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <FileText className="w-4 h-4 mr-2" />
-                      Format: {resource.format}
+                <CardContent className="pt-0">
+                  <div className="space-y-2 mb-4 text-sm">
+                    <div className="flex items-center text-gray-600">
+                      <FileText className="w-3 h-3 mr-2" />
+                      {resource.format}
                     </div>
-                    <div className="flex items-center">
-                      <Download className="w-4 h-4 mr-2" />
-                      Size: {resource.size}
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-2" />
-                      By: {resource.author}
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-2" />
-                      Updated: {resource.lastUpdated}
+                    <div className="flex items-center text-gray-600">
+                      <Users className="w-3 h-3 mr-2" />
+                      {resource.author}
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-1 mb-4">
-                    {resource.tags.slice(0, 3).map((tag, index) => (
+                    {resource.tags.slice(0, 2).map((tag, index) => (
                       <Badge key={index} variant="outline" className="text-xs">
                         {tag}
                       </Badge>
@@ -273,15 +276,12 @@ const UIS2 = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1 bg-green-600 hover:bg-green-700" size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download
+                    <Button className="flex-1 bg-green-600 hover:bg-green-700 text-xs" size="sm">
+                      <Download className="w-3 h-3 mr-1" />
+                      Get
                     </Button>
                     <Button variant="outline" size="sm">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Heart className="w-4 h-4" />
+                      <Eye className="w-3 h-3" />
                     </Button>
                   </div>
                 </CardContent>
@@ -294,6 +294,46 @@ const UIS2 = () => {
               <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-600 mb-2">No resources found</h3>
               <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  
+                  {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(pageNum)}
+                          isActive={currentPage === pageNum}
+                          className="cursor-pointer"
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  
+                  {totalPages > 5 && <PaginationEllipsis />}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </div>

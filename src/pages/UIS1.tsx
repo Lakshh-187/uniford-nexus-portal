@@ -4,6 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { 
   Briefcase, 
   MapPin, 
   Clock, 
@@ -22,6 +31,8 @@ import SEO from '@/components/SEO';
 const UIS1 = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const categories = ['All', 'Internships', 'Workshops', 'Networking', 'Competitions', 'Fellowships'];
 
@@ -132,6 +143,10 @@ const UIS1 = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const totalPages = Math.ceil(filteredOpportunities.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedOpportunities = filteredOpportunities.slice(startIndex, startIndex + itemsPerPage);
+
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'Internship': return 'bg-blue-100 text-blue-700 border-blue-200';
@@ -208,78 +223,53 @@ const UIS1 = () => {
               Available Opportunities ({filteredOpportunities.length})
             </h2>
             <p className="text-gray-600 mt-2">
-              Showing {selectedCategory === 'All' ? 'all' : selectedCategory.toLowerCase()} opportunities
+              Showing {selectedCategory === 'All' ? 'all' : selectedCategory.toLowerCase()} opportunities - Page {currentPage} of {totalPages}
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            {filteredOpportunities.map((opportunity) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {paginatedOpportunities.map((opportunity) => (
               <Card key={opportunity.id} className="hover:shadow-lg transition-all duration-300 border-blue-200">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge className={getTypeColor(opportunity.type)}>
-                          {opportunity.type}
-                        </Badge>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                          {opportunity.rating}
-                        </div>
-                      </div>
-                      <CardTitle className="text-xl text-gray-900 mb-2">
-                        {opportunity.title}
-                      </CardTitle>
-                      <div className="flex items-center text-gray-600 mb-2">
-                        <Building className="w-4 h-4 mr-2" />
-                        {opportunity.company}
-                      </div>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge className={getTypeColor(opportunity.type)} className="text-xs">
+                      {opportunity.type}
+                    </Badge>
+                    <div className="flex items-center text-xs text-gray-500">
+                      <Star className="w-3 h-3 text-yellow-500 mr-1" />
+                      {opportunity.rating}
                     </div>
+                  </div>
+                  <CardTitle className="text-lg text-gray-900 line-clamp-2">
+                    {opportunity.title}
+                  </CardTitle>
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Building className="w-3 h-3 mr-1" />
+                    {opportunity.company}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4 line-clamp-2">
-                    {opportunity.description}
-                  </p>
-                  
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mr-2" />
+                <CardContent className="pt-0">
+                  <div className="space-y-2 mb-4 text-sm">
+                    <div className="flex items-center text-gray-600">
+                      <MapPin className="w-3 h-3 mr-2" />
                       {opportunity.location}
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Clock className="w-4 h-4 mr-2" />
-                      {opportunity.duration}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <DollarSign className="w-4 h-4 mr-2" />
+                    <div className="flex items-center text-gray-600">
+                      <DollarSign className="w-3 h-3 mr-2" />
                       {opportunity.stipend}
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Deadline: {opportunity.deadline}
+                    <div className="flex items-center text-gray-600">
+                      <Calendar className="w-3 h-3 mr-2" />
+                      {opportunity.deadline}
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users className="w-4 h-4 mr-2" />
-                      {opportunity.applicants} applicants
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {opportunity.tags.map((tag, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
                   </div>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-                      Apply Now
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700 text-xs">
+                      Apply
                     </Button>
                     <Button variant="outline" size="sm">
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-3 h-3" />
                     </Button>
                   </div>
                 </CardContent>
@@ -292,6 +282,46 @@ const UIS1 = () => {
               <Briefcase className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-600 mb-2">No opportunities found</h3>
               <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  
+                  {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(pageNum)}
+                          isActive={currentPage === pageNum}
+                          className="cursor-pointer"
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  
+                  {totalPages > 5 && <PaginationEllipsis />}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </div>

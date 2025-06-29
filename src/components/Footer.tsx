@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { 
   Mail, 
@@ -22,7 +23,10 @@ import {
   Stamp,
   Settings,
   FileCheck,
-  Zap
+  Zap,
+  Briefcase,
+  BookOpen,
+  Code2
 } from 'lucide-react';
 
 const Footer = () => {
@@ -35,6 +39,12 @@ const Footer = () => {
     { name: 'Grants Portal', path: '/grants', icon: DollarSign },
     { name: 'Donation Portal', path: '/donation', icon: Heart },
     { name: 'Our Team', path: '/team', icon: Users },
+  ];
+
+  const unsipPortals = [
+    { name: 'UIS-1: Opportunities', path: '/uis-1', icon: Briefcase },
+    { name: 'UIS-2: Resources', path: '/uis-2', icon: BookOpen },
+    { name: 'UIS-3: Projects', path: '/uis-3', icon: Code2 },
   ];
 
   const advancedFeatures = [
@@ -60,9 +70,9 @@ const Footer = () => {
   return (
     <footer className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand Section */}
-          <div className="space-y-4">
+          <div className="space-y-4 lg:col-span-2">
             <Link to="/" className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-xl">U</span>
@@ -124,6 +134,29 @@ const Footer = () => {
             </ul>
           </div>
 
+          {/* UNSIP Portals */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-purple-300">UNSIP Portals</h3>
+            <ul className="space-y-3">
+              {unsipPortals.map((portal) => (
+                <li key={portal.name}>
+                  <Link 
+                    to={portal.path}
+                    className="text-gray-300 hover:text-white transition-colors text-sm flex items-center group"
+                  >
+                    <div className="w-6 h-6 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-md flex items-center justify-center mr-3 group-hover:scale-110 transition-transform">
+                      <portal.icon className="w-3 h-3" />
+                    </div>
+                    <div>
+                      <div className="font-medium group-hover:translate-x-1 transition-transform">{portal.name}</div>
+                      <div className="text-xs text-indigo-300">Portal Access</div>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Advanced Features */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-purple-300">Advanced Tools</h3>
@@ -146,33 +179,33 @@ const Footer = () => {
               ))}
             </ul>
           </div>
+        </div>
 
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-purple-300">Contact Us</h3>
-            <div className="space-y-3">
-              <div className="flex items-start space-x-3 text-sm">
-                <Mail className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <div className="text-gray-300">info@uncif.org</div>
-                  <div className="text-gray-400 text-xs">General Inquiries</div>
-                </div>
+        {/* Contact Info - Full Width */}
+        <div className="mt-8 pt-8 border-t border-white/10">
+          <h3 className="text-lg font-semibold mb-4 text-purple-300">Contact Us</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="flex items-start space-x-3 text-sm">
+              <Mail className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="text-gray-300">info@uncif.org</div>
+                <div className="text-gray-400 text-xs">General Inquiries</div>
               </div>
-              
-              <div className="flex items-start space-x-3 text-sm">
-                <Phone className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <div className="text-gray-300">+91 98765 43210</div>
-                  <div className="text-gray-400 text-xs">Support Helpline</div>
-                </div>
+            </div>
+            
+            <div className="flex items-start space-x-3 text-sm">
+              <Phone className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="text-gray-300">+91 98765 43210</div>
+                <div className="text-gray-400 text-xs">Support Helpline</div>
               </div>
-              
-              <div className="flex items-start space-x-3 text-sm">
-                <MapPin className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <div className="text-gray-300">New Delhi, India</div>
-                  <div className="text-gray-400 text-xs">Headquarters</div>
-                </div>
+            </div>
+            
+            <div className="flex items-start space-x-3 text-sm">
+              <MapPin className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <div className="text-gray-300">New Delhi, India</div>
+                <div className="text-gray-400 text-xs">Headquarters</div>
               </div>
             </div>
           </div>

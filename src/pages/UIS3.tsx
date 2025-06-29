@@ -4,6 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { 
   Code, 
   Lightbulb, 
   Target, 
@@ -26,6 +35,8 @@ const UIS3 = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const categories = ['All', 'Web Development', 'Data Science', 'Mobile Apps', 'AI/ML', 'IoT', 'Blockchain'];
   const difficulties = ['All', 'Beginner', 'Intermediate', 'Advanced'];
@@ -174,6 +185,10 @@ const UIS3 = () => {
     return matchesCategory && matchesDifficulty && matchesSearch;
   });
 
+  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProjects = filteredProjects.slice(startIndex, startIndex + itemsPerPage);
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Beginner': return 'bg-green-100 text-green-700 border-green-200';
@@ -267,93 +282,58 @@ const UIS3 = () => {
               Available Projects ({filteredProjects.length})
             </h2>
             <p className="text-gray-600 mt-2">
-              Choose projects that match your interests and skill level
+              Page {currentPage} of {totalPages} - Choose projects that match your interests and skill level
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            {filteredProjects.map((project) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {paginatedProjects.map((project) => (
               <Card key={project.id} className="hover:shadow-lg transition-all duration-300 border-purple-200">
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex gap-2">
-                      <Badge className={getCategoryColor(project.category)}>
+                      <Badge className={getCategoryColor(project.category)} className="text-xs">
                         {project.category}
                       </Badge>
-                      <Badge className={getDifficultyColor(project.difficulty)}>
+                      <Badge className={getDifficultyColor(project.difficulty)} className="text-xs">
                         {project.difficulty}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       {project.mentorSupport && (
                         <Badge variant="outline" className="text-xs">
-                          <Users className="w-3 h-3 mr-1" />
-                          Mentor
+                          <Users className="w-3 h-3" />
                         </Badge>
                       )}
                       {project.certificateEligible && (
                         <Badge variant="outline" className="text-xs">
-                          <Award className="w-3 h-3 mr-1" />
-                          Certificate
+                          <Award className="w-3 h-3" />
                         </Badge>
                       )}
                     </div>
                   </div>
-                  <CardTitle className="text-xl text-gray-900 mb-2">
+                  <CardTitle className="text-lg text-gray-900 mb-2 line-clamp-2">
                     {project.title}
                   </CardTitle>
-                  <div className="flex items-center text-sm text-gray-500 mb-3">
-                    <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                  <div className="flex items-center text-xs text-gray-500 mb-3">
+                    <Star className="w-3 h-3 text-yellow-500 mr-1" />
                     {project.rating}
                     <span className="mx-2">•</span>
-                    <Users className="w-4 h-4 mr-1" />
-                    {project.participants} participants
+                    <Users className="w-3 h-3 mr-1" />
+                    {project.participants}
                     <span className="mx-2">•</span>
-                    <Clock className="w-4 h-4 mr-1" />
+                    <Clock className="w-3 h-3 mr-1" />
                     {project.duration}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4 line-clamp-3">
+                <CardContent className="pt-0">
+                  <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
                     {project.description}
                   </p>
 
                   <div className="mb-4">
-                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
-                      <Target className="w-4 h-4 mr-2" />
-                      Key Objectives
-                    </h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      {project.objectives.slice(0, 3).map((objective, index) => (
-                        <li key={index} className="flex items-start">
-                          <CheckCircle className="w-3 h-3 mr-2 mt-1 text-green-500 flex-shrink-0" />
-                          {objective}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
-                      <Zap className="w-4 h-4 mr-2" />
-                      Skills You'll Gain
-                    </h4>
                     <div className="flex flex-wrap gap-1">
-                      {project.skills.slice(0, 4).map((skill, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
-                      <FileText className="w-4 h-4 mr-2" />
-                      Technologies
-                    </h4>
-                    <div className="flex flex-wrap gap-1">
-                      {project.tags.map((tag, index) => (
+                      {project.tags.slice(0, 3).map((tag, index) => (
                         <Badge key={index} className="bg-purple-100 text-purple-700 border-purple-200 text-xs">
                           {tag}
                         </Badge>
@@ -362,13 +342,11 @@ const UIS3 = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1 bg-purple-600 hover:bg-purple-700">
-                      Start Project
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                    <Button className="flex-1 bg-purple-600 hover:bg-purple-700 text-xs" size="sm">
+                      Start
                     </Button>
-                    <Button variant="outline">
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      Details
+                    <Button variant="outline" size="sm">
+                      <BookOpen className="w-3 h-3" />
                     </Button>
                   </div>
                 </CardContent>
@@ -381,6 +359,46 @@ const UIS3 = () => {
               <Code className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-600 mb-2">No projects found</h3>
               <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-8">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  
+                  {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <PaginationItem key={pageNum}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(pageNum)}
+                          isActive={currentPage === pageNum}
+                          className="cursor-pointer"
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  
+                  {totalPages > 5 && <PaginationEllipsis />}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </div>
