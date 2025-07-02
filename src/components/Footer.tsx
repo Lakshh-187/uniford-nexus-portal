@@ -26,7 +26,8 @@ import {
   Zap,
   Briefcase,
   BookOpen,
-  Code2
+  Code2,
+  Receipt
 } from 'lucide-react';
 
 const Footer = () => {
@@ -52,6 +53,7 @@ const Footer = () => {
     { name: 'Advanced Document Generator', path: '/advanced-document-generator', icon: Crown },
     { name: 'Template Generator', path: '/template-generator', icon: FileText },
     { name: 'Letter Generator', path: '/letter-generator', icon: PenTool },
+    { name: 'Invoice Generator', path: '/invoice-generator', icon: Receipt },
     { name: 'Policy & Agreement', path: '/policy-agreement', icon: Settings },
     { name: 'Stamp & Signature', path: '/stamp-signature', icon: Stamp },
   ];
