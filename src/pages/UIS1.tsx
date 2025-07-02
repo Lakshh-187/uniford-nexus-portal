@@ -232,7 +232,7 @@ const UIS1 = () => {
               <Card key={opportunity.id} className="hover:shadow-lg transition-all duration-300 border-blue-200">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <Badge className={getTypeColor(opportunity.type)} className="text-xs">
+                    <Badge className={`${getTypeColor(opportunity.type)} text-xs`}>
                       {opportunity.type}
                     </Badge>
                     <div className="flex items-center text-xs text-gray-500">

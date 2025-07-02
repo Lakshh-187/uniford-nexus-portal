@@ -237,10 +237,10 @@ const UIS2 = () => {
               <Card key={resource.id} className="hover:shadow-lg transition-all duration-300 border-green-200">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between mb-2">
-                    <Badge className={getTypeColor(resource.type)} className="text-xs">
+                    <Badge className={`${getTypeColor(resource.type)} text-xs`}>
                       {resource.type}
                     </Badge>
-                    <Badge className={getDifficultyColor(resource.difficulty)} className="text-xs">
+                    <Badge className={`${getDifficultyColor(resource.difficulty)} text-xs`}>
                       {resource.difficulty}
                     </Badge>
                   </div>

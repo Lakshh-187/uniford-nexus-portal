@@ -292,12 +292,12 @@ const UIS3 = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex gap-2">
-                      <Badge className={getCategoryColor(project.category)} className="text-xs">
-                        {project.category}
-                      </Badge>
-                      <Badge className={getDifficultyColor(project.difficulty)} className="text-xs">
-                        {project.difficulty}
-                      </Badge>
+                       <Badge className={`${getCategoryColor(project.category)} text-xs`}>
+                         {project.category}
+                       </Badge>
+                       <Badge className={`${getDifficultyColor(project.difficulty)} text-xs`}>
+                         {project.difficulty}
+                       </Badge>
                     </div>
                     <div className="flex items-center gap-1">
                       {project.mentorSupport && (
