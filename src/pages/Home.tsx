@@ -7,6 +7,11 @@ import { useToast } from '@/hooks/use-toast';
 import OrganizationMemories from '@/components/OrganizationMemories';
 import UNCIFEventsGallery from '@/components/UNCIFEventsGallery';
 import UNCIFAwards from '@/components/UNCIFAwards';
+import FrontlinerInitiative from '@/components/FrontlinerInitiative';
+import TransformationInstitutes from '@/components/TransformationInstitutes';
+import DigitalBackbone from '@/components/DigitalBackbone';
+import StanburgInitiative from '@/components/StanburgInitiative';
+import WhatMatters from '@/components/WhatMatters';
 import { 
   ArrowDown, 
   Book, 
@@ -246,6 +251,13 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* UNCIF Initiatives Sections */}
+      <FrontlinerInitiative />
+      <TransformationInstitutes />
+      <DigitalBackbone />
+      <StanburgInitiative />
+      <WhatMatters />
 
       {/* Organization Memories Section */}
       <OrganizationMemories />
