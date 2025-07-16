@@ -34,6 +34,7 @@ const Footer = () => {
   const mainPages = [
     { name: 'Home', path: '/', icon: Home },
     { name: 'About', path: '/about', icon: Info },
+    { name: 'Blogs', path: '/blogs', icon: BookOpen },
     { name: 'UNSIP', path: '/unsip', icon: Zap },
     { name: 'MOU & Collaboration', path: '/mou-collaboration', icon: HandHeart },
     { name: 'Authentication', path: '/authentication', icon: Shield },
@@ -59,10 +60,7 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { name: 'LinkedIn', icon: Linkedin, url: '#' },
-    { name: 'Twitter', icon: Twitter, url: '#' },
-    { name: 'Instagram', icon: Instagram, url: '#' },
-    { name: 'YouTube', icon: Youtube, url: '#' },
+    { name: 'LinkedIn', icon: Linkedin, url: 'https://www.linkedin.com/company/unifordfoundation/?viewAsMember=true' },
   ];
 
   const handleUnifordClick = () => {
@@ -190,7 +188,7 @@ const Footer = () => {
             <div className="flex items-start space-x-3 text-sm">
               <Mail className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
               <div>
-                <div className="text-gray-300">info@uncif.org</div>
+                <div className="text-gray-300">info@uniford.org</div>
                 <div className="text-gray-400 text-xs">General Inquiries</div>
               </div>
             </div>
@@ -198,8 +196,8 @@ const Footer = () => {
             <div className="flex items-start space-x-3 text-sm">
               <Phone className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
               <div>
-                <div className="text-gray-300">+91 98765 43210</div>
-                <div className="text-gray-400 text-xs">Support Helpline</div>
+                <div className="text-gray-300">+91</div>
+                <div className="text-gray-400 text-xs">Contact & WhatsApp</div>
               </div>
             </div>
             
