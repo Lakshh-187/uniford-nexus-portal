@@ -35,6 +35,7 @@ const Footer = () => {
     { name: 'Home', path: '/', icon: Home },
     { name: 'About', path: '/about', icon: Info },
     { name: 'Blogs', path: '/blogs', icon: BookOpen },
+    { name: 'Frontliner', path: '/frontliner', icon: Shield },
     { name: 'UNSIP', path: '/unsip', icon: Zap },
     { name: 'MOU & Collaboration', path: '/mou-collaboration', icon: HandHeart },
     { name: 'Authentication', path: '/authentication', icon: Shield },
@@ -196,7 +197,7 @@ const Footer = () => {
             <div className="flex items-start space-x-3 text-sm">
               <Phone className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
               <div>
-                <div className="text-gray-300">+91</div>
+                <div className="text-gray-300">+917347099610</div>
                 <div className="text-gray-400 text-xs">Contact & WhatsApp</div>
               </div>
             </div>
@@ -204,7 +205,8 @@ const Footer = () => {
             <div className="flex items-start space-x-3 text-sm">
               <MapPin className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
               <div>
-                <div className="text-gray-300">New Delhi, India</div>
+                <div className="text-gray-300">Panipat, Haryana</div>
+                <div className="text-gray-300">CIA, Delhi Road, NH-709B</div>
                 <div className="text-gray-400 text-xs">Headquarters</div>
               </div>
             </div>
