@@ -58,6 +58,8 @@ const Footer = () => {
     { name: 'Invoice Generator', path: '/invoice-generator', icon: Receipt },
     { name: 'Policy & Agreement', path: '/policy-agreement', icon: Settings },
     { name: 'Stamp & Signature', path: '/stamp-signature', icon: Stamp },
+    { name: 'LOC Generator', path: '/loc', icon: FileCheck },
+    { name: 'Office Portal', path: '/office', icon: Briefcase },
   ];
 
   const socialLinks = [
