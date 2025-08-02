@@ -1,15 +1,43 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { Download, FileText, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel } from 'docx';
+import { CollaborationEditor } from '@/components/CollaborationEditor';
+import { CollaborationPreview } from '@/components/CollaborationPreview';
+
+interface CollaborationData {
+  partnerName: string;
+  introduction: string;
+  scope: string[];
+  understanding: string[];
+  partnerSignatoryName: string;
+  partnerSignatoryDesignation: string;
+}
 
 const Collaboration = () => {
   const proposalRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [collaborationData, setCollaborationData] = useState<CollaborationData>({
+    partnerName: '[Partner Organization Name]',
+    introduction: 'This proposal is intended to build a friendly and collaborative relationship between UNCIF and [Partner Organization Name]. The goal is to work together on education, innovation, environmental, and student empowerment programs in schools, colleges, and communities — supported through CSR and UNCIF-driven initiatives.',
+    scope: [
+      'Collaborate on future campaigns, drives, workshops, and educational programs',
+      'Share ideas and co-create impactful projects aligned with common themes',
+      'Support each other\'s initiatives by providing space, volunteers, tools, or training wherever possible',
+      'Explore joint visibility, recognition, and participation opportunities',
+      'Build meaningful impact through combined strengths and resources'
+    ],
+    understanding: [
+      'This is a non-binding collaboration, formed in mutual goodwill',
+      'Both parties may contribute as per their capacity and availability',
+      'Each project or program will have its own discussion and execution plan'
+    ],
+    partnerSignatoryName: '',
+    partnerSignatoryDesignation: ''
+  });
 
   const downloadPDF = async () => {
     if (!proposalRef.current) return;
@@ -69,38 +97,7 @@ const Collaboration = () => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "Between",
-                  size: 24,
-                }),
-              ],
-              alignment: AlignmentType.CENTER,
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "UNCIF (United Nations Council for Innovation & Future)",
-                  bold: true,
-                  size: 24,
-                }),
-              ],
-              alignment: AlignmentType.CENTER,
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "and",
-                  size: 24,
-                }),
-              ],
-              alignment: AlignmentType.CENTER,
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: "[Partner Organization Name]",
+                  text: `UNCIF & ${collaborationData.partnerName}`,
                   bold: true,
                   size: 24,
                 }),
@@ -111,7 +108,7 @@ const Collaboration = () => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "This proposal is intended to build a friendly and collaborative relationship between UNCIF and [Partner Organization Name]. The goal is to work together on education, innovation, environmental, and student empowerment programs in schools, colleges, and communities — supported through CSR and UNCIF-driven initiatives.",
+                  text: collaborationData.introduction,
                   size: 22,
                 }),
               ],
@@ -131,7 +128,7 @@ const Collaboration = () => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "• Collaborate on future campaigns, drives, workshops, and educational programs\n• Share ideas and co-create impactful projects aligned with common themes\n• Support each other's initiatives by providing space, volunteers, tools, or training wherever possible\n• Explore joint visibility, recognition, and participation opportunities\n• Build meaningful impact through combined strengths and resources",
+                  text: collaborationData.scope.map(item => `• ${item}`).join('\n'),
                   size: 22,
                 }),
               ],
@@ -151,7 +148,7 @@ const Collaboration = () => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "• This is a non-binding collaboration, formed in mutual goodwill\n• Both parties may contribute as per their capacity and availability\n• Each project or program will have its own discussion and execution plan",
+                  text: collaborationData.understanding.map(item => `• ${item}`).join('\n'),
                   size: 22,
                 }),
               ],
@@ -171,7 +168,7 @@ const Collaboration = () => {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "For UNCIF\nName: Lakshay Choudhary\nDesignation: Founder\nSignature: ___________________\nDate: ______________________\n\nFor [Partner Organization Name]\nName: ______________________\nDesignation: __________________\nSignature: ___________________\nDate: ______________________",
+                  text: `For UNCIF\nName: Lakshay Choudhary\nDesignation: Founder\nSignature: ___________________\nDate: ______________________\n\nFor ${collaborationData.partnerName}\nName: ${collaborationData.partnerSignatoryName || '______________________'}\nDesignation: ${collaborationData.partnerSignatoryDesignation || '__________________'}\nSignature: ___________________\nDate: ______________________`,
                   size: 22,
                 }),
               ],
@@ -233,161 +230,28 @@ const Collaboration = () => {
           </Button>
         </div>
 
+        {/* Editor */}
+        <div className="max-w-4xl mx-auto">
+          <CollaborationEditor
+            data={collaborationData}
+            isEditing={isEditing}
+            onEdit={() => setIsEditing(true)}
+            onSave={(data) => {
+              setCollaborationData(data);
+              setIsEditing(false);
+              toast.success('Proposal content updated successfully!');
+            }}
+            onCancel={() => setIsEditing(false)}
+            onChange={setCollaborationData}
+          />
+        </div>
+
         {/* Proposal Preview */}
         <div className="max-w-4xl mx-auto">
-          <Card className="shadow-2xl border-0 bg-white">
-            <CardContent className="p-0">
-              <div 
-                ref={proposalRef}
-                className="p-12 bg-white text-black min-h-[297mm] w-full"
-                style={{ 
-                  fontFamily: 'serif',
-                  lineHeight: '1.6',
-                  fontSize: '16px'
-                }}
-              >
-                {/* Header */}
-                <div className="text-center mb-12">
-                  <h1 className="text-4xl font-bold mb-6 text-gray-800">
-                    🤝 Proposal for Collaboration
-                  </h1>
-                  <div className="text-2xl mb-4 text-gray-700">Between</div>
-                  <div className="text-2xl font-semibold mb-4 text-blue-800">
-                    UNCIF (United Nations Council for Innovation & Future)
-                  </div>
-                  <div className="text-2xl mb-4 text-gray-700">and</div>
-                  <div className="text-2xl font-semibold text-blue-800 border-b-2 border-blue-200 pb-2 inline-block">
-                    [Partner Organization Name]
-                  </div>
-                </div>
-
-                <Separator className="my-8 bg-gray-300" />
-
-                {/* Introduction */}
-                <div className="mb-8 text-justify leading-relaxed text-gray-700">
-                  <p className="text-lg">
-                    This proposal is intended to build a friendly and collaborative relationship between UNCIF and [Partner Organization Name]. The goal is to work together on education, innovation, environmental, and student empowerment programs in schools, colleges, and communities — supported through CSR and UNCIF-driven initiatives.
-                  </p>
-                </div>
-
-                {/* Scope Section */}
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold mb-4 text-blue-800 flex items-center gap-2">
-                    📌 Scope
-                  </h2>
-                  <div className="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-400">
-                    <ul className="space-y-3 text-gray-700">
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-600 font-bold">•</span>
-                        Collaborate on future campaigns, drives, workshops, and educational programs
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-600 font-bold">•</span>
-                        Share ideas and co-create impactful projects aligned with common themes
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-600 font-bold">•</span>
-                        Support each other's initiatives by providing space, volunteers, tools, or training wherever possible
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-600 font-bold">•</span>
-                        Explore joint visibility, recognition, and participation opportunities
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-600 font-bold">•</span>
-                        Build meaningful impact through combined strengths and resources
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Understanding Section */}
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold mb-4 text-purple-800 flex items-center gap-2">
-                    ✨ Understanding
-                  </h2>
-                  <div className="bg-purple-50 p-6 rounded-lg border-l-4 border-purple-400">
-                    <ul className="space-y-3 text-gray-700">
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-600 font-bold">•</span>
-                        This is a non-binding collaboration, formed in mutual goodwill
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-600 font-bold">•</span>
-                        Both parties may contribute as per their capacity and availability
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-600 font-bold">•</span>
-                        Each project or program will have its own discussion and execution plan
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <Separator className="my-8 bg-gray-300" />
-
-                {/* Signatories Section */}
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold mb-6 text-green-800 flex items-center gap-2">
-                    📝 Signatories
-                  </h2>
-                  
-                  <div className="grid md:grid-cols-2 gap-8">
-                    {/* UNCIF Signatory */}
-                    <div className="bg-green-50 p-6 rounded-lg border-2 border-green-200">
-                      <h3 className="text-xl font-semibold mb-4 text-green-800">For UNCIF</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <strong className="text-gray-700">Name:</strong> Lakshay Choudhary
-                        </div>
-                        <div>
-                          <strong className="text-gray-700">Designation:</strong> Founder
-                        </div>
-                        <div>
-                          <strong className="text-gray-700">Signature:</strong> 
-                          <div className="border-b-2 border-gray-400 mt-2 h-8"></div>
-                        </div>
-                        <div>
-                          <strong className="text-gray-700">Date:</strong> 
-                          <div className="border-b-2 border-gray-400 mt-2 h-8"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Partner Organization Signatory */}
-                    <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-200">
-                      <h3 className="text-xl font-semibold mb-4 text-blue-800">For [Partner Organization Name]</h3>
-                      <div className="space-y-4">
-                        <div>
-                          <strong className="text-gray-700">Name:</strong> 
-                          <div className="border-b-2 border-gray-400 mt-2 h-8"></div>
-                        </div>
-                        <div>
-                          <strong className="text-gray-700">Designation:</strong> 
-                          <div className="border-b-2 border-gray-400 mt-2 h-8"></div>
-                        </div>
-                        <div>
-                          <strong className="text-gray-700">Signature:</strong> 
-                          <div className="border-b-2 border-gray-400 mt-2 h-8"></div>
-                        </div>
-                        <div>
-                          <strong className="text-gray-700">Date:</strong> 
-                          <div className="border-b-2 border-gray-400 mt-2 h-8"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="text-center mt-12 pt-8 border-t-2 border-gray-200">
-                  <p className="text-sm text-gray-500">
-                    This document represents a mutual understanding between the parties for collaborative initiatives.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <CollaborationPreview 
+            data={collaborationData}
+            forwardRef={proposalRef}
+          />
         </div>
       </div>
     </div>
