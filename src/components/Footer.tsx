@@ -60,6 +60,7 @@ const Footer = () => {
     { name: 'Stamp & Signature', path: '/stamp-signature', icon: Stamp },
     { name: 'LOC Generator', path: '/loc', icon: FileCheck },
     { name: 'Office Portal', path: '/office', icon: Briefcase },
+    { name: 'Collaboration', path: '/collaboration', icon: Users },
   ];
 
   const socialLinks = [

@@ -30,6 +30,7 @@ import UIS3 from "./pages/UIS3";
 import InvoiceGenerator from "./pages/InvoiceGenerator";
 import Frontliner from "./pages/Frontliner";
 import Blogs from "./pages/Blogs";
+import Collaboration from "./pages/Collaboration";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,7 @@ const App = () => (
                 <Route path="/invoice-generator" element={<InvoiceGenerator />} />
                 <Route path="/frontliner" element={<Frontliner />} />
                 <Route path="/blogs" element={<Blogs />} />
+                <Route path="/collaboration" element={<Collaboration />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
